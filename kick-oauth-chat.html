@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kick Chat Ses - OAuth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            background: rgba(22, 33, 62, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .status.waiting {
+            background: #f39c12;
+            color: #000;
+        }
+
+        .status.connected {
+            background: #27ae60;
+            color: #fff;
+        }
+
+        .status.error {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .info-box {
+            background: rgba(15, 52, 96, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: #e94560;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #0f3460;
+            border-radius: 10px;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #e94560;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #ff6b6b;
+        }
+
+        .btn-primary:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #0f3460;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #1a4a7a;
+        }
+
+        .btn-logout {
+            background: #e74c3c;
+            color: #fff;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 12px;
+            padding: 8px;
+        }
+
+        .btn-logout:hover {
+            background: #c0392b;
+        }
+
+        .btn-kick {
+            background: #53fc18;
+            color: #000;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn-kick:hover {
+            background: #7fff50;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .volume-control input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #0f3460;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .volume-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #e94560;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .volume-value {
+            font-size: 13px;
+            min-width: 35px;
+            text-align: right;
+        }
+
+        .sound-selector {
+            margin-bottom: 20px;
+        }
+
+        .sound-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+
+        .sound-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .sound-option {
+            background: #1a1a2e;
+            border: 2px solid #0f3460;
+            border-radius: 8px;
+            padding: 10px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .sound-option:hover {
+            border-color: #e94560;
+            background: #0f3460;
+        }
+
+        .sound-option.active {
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.2);
+        }
+
+        .sound-option .icon {
+            font-size: 18px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .sound-option .name {
+            font-size: 11px;
+            color: #fff;
+        }
+
+        .last-message {
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            min-height: 60px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .last-message strong {
+            color: #e94560;
+        }
+
+        .last-message .time {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .token-info {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .message-log {
+            width: 100%;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .message-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .message-item:last-child {
+            border-bottom: none;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Kick Chat Ses</h1>
+            <span class="status waiting" id="status">Kick ile bağlan</span>
+        </div>
+
+        <div class="info-box" id="infoBox">
+            <strong>Kick Chat Ses Bildirimi</strong><br>
+            1. "Kick ile Giriş Yap" butonuna tıkla<br>
+            2. Tüm izinleri onayla<br>
+            3. Kendi kanalın otomatik yüklenecek<br>
+            4. "Dinlemeye Başla" butonuna tıkla<br>
+            5. Her yeni mesajda ses çıkar
+        </div>
+
+        <!-- Adım 1: Kick OAuth -->
+        <button class="btn-kick" id="kickLoginBtn" onclick="redirectToKick()">
+            🟢 Kick ile Giriş Yap
+        </button>
+
+        <!-- Adım 2: Bağlandıktan sonra -->
+        <div id="chatControls" class="hidden">
+            <div class="info-box" id="channelInfo" style="text-align: center; margin-bottom: 15px;">
+                <strong>📺 Kanal:</strong> <span id="channelName">Yükleniyor...</span>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="toggleListenBtn" onclick="toggleListening()">🎧 Dinlemeye Başla</button>
+            </div>
+
+            <div class="sound-selector">
+                <label>🔔 Bildirim Sesi Seçin (Önizleme için tıklayın):</label>
+                <div class="sound-options">
+                    <div class="sound-option" onclick="selectSound(0)" id="sound0">
+                        <span class="icon">🎵</span>
+                        <span class="name">Çift Bip</span>
+                    </div>
+                    <div class="sound-option" onclick="selectSound(1)" id="sound1">
+                        <span class="icon">🔔🔔🔔</span>
+                        <span class="name">Üçlü</span>
+                    </div>
+                    <div class="sound-option" onclick="selectSound(2)" id="sound2">
+                        <span class="icon">📢</span>
+                        <span class="name">Uzun Bip</span>
+                    </div>
+                    <div class="sound-option" onclick="selectSound(3)" id="sound3">
+                        <span class="icon">✨</span>
+                        <span class="name">Zil</span>
+                    </div>
+                    <div class="sound-option" onclick="selectSound(4)" id="sound4">
+                        <span class="icon">🥁</span>
+                        <span class="name">Bas</span>
+                    </div>
+                    <div class="sound-option" onclick="selectSound(5)" id="sound5">
+                        <span class="icon">🎹</span>
+                        <span class="name">Marimba</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="volume-control">
+                <span>🔊</span>
+                <input type="range" id="volume" min="0" max="100" value="50" oninput="updateVolume(this.value)">
+                <span class="volume-value" id="volumeValue">50%</span>
+            </div>
+
+            <div class="notification-toggle" style="margin-bottom: 15px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 8px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;">
+                    <input type="checkbox" id="notificationToggle" onchange="toggleNotifications()" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>🔔 Windows Bildirimleri</span>
+                </label>
+                <div id="notificationStatus" style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 28px;">Kapalı</div>
+            </div>
+
+            <button class="btn-logout" onclick="logout()">🚪 Çıkış Yap (Token'ı Temizle)</button>
+        </div>
+
+        <!-- Chat Mesajları Göstergesi -->
+        <div id="chatBox" style="background: rgba(15, 52, 96, 0.5); border-radius: 10px; padding: 15px; margin-top: 15px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong>💬 Son Mesajlar</strong>
+                <span id="soundStatus" style="font-size: 12px; color: #888;">🔊 Ses: Bekliyor...</span>
+            </div>
+            <div id="chatMessages" style="max-height: 200px; overflow-y: auto; font-size: 13px; line-height: 1.6;">
+                <div style="color: #888; text-align: center; padding: 20px;">Henüz mesaj yok...</div>
+            </div>
+        </div>
+
+        <div class="last-message" id="lastMessage">
+            <span>Henüz bağlanmadınız...</span>
+        </div>
+
+
+        <div class="token-info" id="tokenInfo"></div>
+    </div>
+
+    <script>
+        // Kick OAuth Ayarları
+        const KICK_AUTH_URL = 'https://id.kick.com/oauth/authorize';
+        const CLIENT_ID = '01KK4FR27QK1SZV1F0HSRJ5FE6';
+        const REDIRECT_URI = 'https://ahmedmesud.com/kick-callback/kick-callback.php';
+        const SCOPE = 'user:read channel:read events:subscribe chat:write moderation:chat_message:manage';
+
+        let accessToken = localStorage.getItem('kick_access_token');
+        let refreshToken = localStorage.getItem('kick_refresh_token');
+        let tokenExpires = localStorage.getItem('kick_token_expires');
+        let audioContext = null;
+        let volume = 0.5;
+        let isListening = false;
+        let pollInterval = null;
+        let lastMessageId = null;
+        let recentUsers = new Map();
+        let currentChannelId = null;
+        let currentChannelName = '';
+        let selectedSound = parseInt(localStorage.getItem('kick_selected_sound') || '0');
+        let notificationsEnabled = localStorage.getItem('kick_notifications') === 'true';
+        const COOLDOWN_MS = 2000;
+
+        // Bilinen botlar
+        const BOTS = new Set(['streamelements', 'nightbot', 'moobot', 'botrix', 'kickbot', 'kick', 'streamlabs']);
+
+        // ===== FONKSİYONLAR (Önce tanımlanmalı) =====
+
+        // PKCE için code_verifier üret
+        function generateCodeVerifier() {
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            return btoa(String.fromCharCode.apply(null, array))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+        }
+
+        // Code challenge üret (SHA256)
+        async function generateCodeChallenge(verifier) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(verifier);
+            const digest = await crypto.subtle.digest('SHA-256', data);
+            return btoa(String.fromCharCode.apply(null, new Uint8Array(digest)))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+        }
+
+        // Kick'e yönlendir
+        async function redirectToKick() {
+            const codeVerifier = generateCodeVerifier();
+            const codeChallenge = await generateCodeChallenge(codeVerifier);
+            const state = Math.random().toString(36).substring(7);
+
+            localStorage.setItem('pkce_code_verifier', codeVerifier);
+            localStorage.setItem('oauth_state', state);
+
+            const authUrl = `${KICK_AUTH_URL}?` +
+                `response_type=code&` +
+                `client_id=${CLIENT_ID}&` +
+                `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+                `scope=${encodeURIComponent(SCOPE)}&` +
+                `code_challenge=${codeChallenge}&` +
+                `code_challenge_method=S256&` +
+                `state=${state}`;
+
+            window.location.href = authUrl;
+        }
+
+        function updateVolume(val) {
+            volume = val / 100;
+            document.getElementById('volumeValue').textContent = val + '%';
+        }
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Ses çalma fonksiyonları
+        const SOUND_FUNCTIONS = [
+            playDoubleBeep,      // 0: Çift Bip (mevcut)
+            playTripleBeep,      // 1: Üçlü Tekrar
+            playLongBeep,        // 2: Uzun Bip
+            playHighBell,        // 3: Yüksek Zil
+            playLowBass,         // 4: Düşük Bas
+            playMarimba          // 5: Marimba
+        ];
+
+        function playSound() {
+            SOUND_FUNCTIONS[selectedSound]();
+        }
+
+        // 0: Çift Bip (Mevcut)
+        function playDoubleBeep() {
+            if (!audioContext) initAudio();
+            const now = audioContext.currentTime;
+
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.frequency.value = 523;
+            gain1.gain.setValueAtTime(volume * 0.3, now);
+            gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+            osc1.start(now);
+            osc1.stop(now + 0.3);
+
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.frequency.value = 659;
+            gain2.gain.setValueAtTime(volume * 0.2, now + 0.1);
+            gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.start(now + 0.1);
+            osc2.stop(now + 0.4);
+        }
+
+        // 1: Üçlü Tekrar (Mevcut sesi 3 kere)
+        function playTripleBeep() {
+            if (!audioContext) initAudio();
+            const now = audioContext.currentTime;
+
+            for (let i = 0; i < 3; i++) {
+                const delay = i * 0.2;
+                
+                const osc1 = audioContext.createOscillator();
+                const gain1 = audioContext.createGain();
+                osc1.frequency.value = 523;
+                gain1.gain.setValueAtTime(volume * 0.3, now + delay);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.15);
+                osc1.connect(gain1);
+                gain1.connect(audioContext.destination);
+                osc1.start(now + delay);
+                osc1.stop(now + delay + 0.15);
+
+                const osc2 = audioContext.createOscillator();
+                const gain2 = audioContext.createGain();
+                osc2.frequency.value = 659;
+                gain2.gain.setValueAtTime(volume * 0.2, now + delay + 0.05);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.2);
+                osc2.connect(gain2);
+                gain2.connect(audioContext.destination);
+                osc2.start(now + delay + 0.05);
+                osc2.stop(now + delay + 0.2);
+            }
+        }
+
+        // 2: Tek Uzun Bip
+        function playLongBeep() {
+            if (!audioContext) initAudio();
+            const now = audioContext.currentTime;
+
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.frequency.value = 880;
+            gain.gain.setValueAtTime(volume * 0.4, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+
+        // 3: Yüksek Zil
+        function playHighBell() {
+            if (!audioContext) initAudio();
+            const now = audioContext.currentTime;
+
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.frequency.value = 1200;
+            gain.gain.setValueAtTime(volume * 0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        }
+
+        // 4: Düşük Bas
+        function playLowBass() {
+            if (!audioContext) initAudio();
+            const now = audioContext.currentTime;
+
+            const osc = audioContext.createOscillator();
+            osc.type = 'sine';
+            const gain = audioContext.createGain();
+            osc.frequency.value = 150;
+            gain.gain.setValueAtTime(volume * 0.5, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        }
+
+        // 5: Marimba (3 nota arpej)
+        function playMarimba() {
+            if (!audioContext) initAudio();
+            const now = audioContext.currentTime;
+            const notes = [523, 659, 784]; // C5, E5, G5
+
+            notes.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(volume * 0.3, now + i * 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.2);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start(now + i * 0.08);
+                osc.stop(now + i * 0.08 + 0.2);
+            });
+        }
+
+        // Ses seçimi
+        function selectSound(index) {
+            selectedSound = index;
+            localStorage.setItem('kick_selected_sound', index);
+            
+            // Tüm butonlardan active class'ını kaldır
+            for (let i = 0; i < 6; i++) {
+                document.getElementById('sound' + i).classList.remove('active');
+            }
+            // Seçili butona active class'ı ekle
+            document.getElementById('sound' + index).classList.add('active');
+            
+            // Önizleme olarak ses çal
+            initAudio();
+            SOUND_FUNCTIONS[index]();
+        }
+
+        // Bildirim toggle
+        async function toggleNotifications() {
+            const checkbox = document.getElementById('notificationToggle');
+            const statusDiv = document.getElementById('notificationStatus');
+            
+            if (checkbox.checked) {
+                // İzin iste
+                const permission = await requestNotificationPermission();
+                if (permission === 'granted') {
+                    notificationsEnabled = true;
+                    localStorage.setItem('kick_notifications', 'true');
+                    statusDiv.textContent = '✅ Aktif';
+                    statusDiv.style.color = '#27ae60';
+                    showTestNotification();
+                } else {
+                    checkbox.checked = false;
+                    notificationsEnabled = false;
+                    localStorage.setItem('kick_notifications', 'false');
+                    statusDiv.textContent = '❌ İzin reddedildi';
+                    statusDiv.style.color = '#e74c3c';
+                    alert('Bildirim izni verilmedi. Windows Ayarlar > Sistem > Bildirimler bölümünden izin verebilirsiniz.');
+                }
+            } else {
+                notificationsEnabled = false;
+                localStorage.setItem('kick_notifications', 'false');
+                statusDiv.textContent = 'Kapalı';
+                statusDiv.style.color = '#888';
+            }
+        }
+
+        // Bildirim izni iste
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                alert('Tarayıcınız bildirimleri desteklemiyor.');
+                return 'denied';
+            }
+            
+            if (Notification.permission === 'granted') {
+                return 'granted';
+            }
+            
+            if (Notification.permission === 'denied') {
+                alert('Bildirim izni daha önce reddedilmiş. Windows Ayarlar > Sistem > Bildirimler bölümünden izin vermeniz gerekiyor.');
+                return 'denied';
+            }
+            
+            // İzin iste
+            const permission = await Notification.requestPermission();
+            return permission;
+        }
+
+        // Bildirim göster
+        function showNotification(username, message) {
+            if (!notificationsEnabled || !('Notification' in window)) return;
+            if (Notification.permission !== 'granted') return;
+            
+            // Mevcut bildirimleri kapat (opsiyonel)
+            // if (currentNotification) currentNotification.close();
+            
+            const notification = new Notification('💬 ' + username, {
+                body: message,
+                icon: 'https://ahmedmesud.com/favicon.ico', // Varsa site favicon
+                tag: 'kick-chat-' + Date.now(), // Benzersiz tag
+                requireInteraction: false, // Otomatik kapanır
+                silent: false // Sistem sesi çal
+            });
+            
+            // Bildirim tıklandığında pencereye odaklan
+            notification.onclick = function() {
+                window.focus();
+                notification.close();
+            };
+            
+            // 5 saniye sonra otomatik kapat
+            setTimeout(() => notification.close(), 5000);
+        }
+
+        // Test bildirimi göster
+        function showTestNotification() {
+            showNotification('Test', 'Windows bildirimleri aktif! 🎉');
+        }
+
+        // Kendi kanalını getir ve göster
+        async function loadMyChannel() {
+            if (!accessToken) return;
+            
+            try {
+                const response = await fetch('get-user-channel.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: accessToken })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.channel_slug) {
+                    // Kanal adını göster
+                    currentChannelName = data.channel_slug;
+                    document.getElementById('channelName').textContent = currentChannelName;
+                    // Channel ID'yi kaydet (events subscription için)
+                    if (data.channel_id) {
+                        currentChannelId = data.channel_id;
+                        console.log('✅ Kanal yüklendi:', data.channel_slug, 'ID:', data.channel_id);
+                    } else {
+                        console.error('❌ Kanal ID alınamadı!');
+                        document.getElementById('channelName').textContent = currentChannelName + ' (ID alınamadı)';
+                    }
+                } else {
+                    document.getElementById('channelName').textContent = 'Alınamadı';
+                    console.log('Kanal bilgisi alınamadı:', data.error);
+                }
+            } catch (e) {
+                document.getElementById('channelName').textContent = 'Hata';
+                console.error('Kanal yükleme hatası:', e);
+            }
+        }
+
+        // Chat dinlemeyi başlat (Kick Events API ile)
+        async function startListening() {
+            if (!currentChannelId) {
+                alert('Kanal bilgisi yüklenemedi. Lütfen tekrar giriş yapın.');
+                return;
+            }
+
+            if (!accessToken) {
+                alert('Önce Kick ile giriş yapmalısınız!');
+                return;
+            }
+
+            initAudio();
+            playSound(); // Test sesi
+
+            document.getElementById('status').textContent = 'Bağlanıyor...';
+            document.getElementById('status').className = 'status waiting';
+            document.getElementById('toggleListenBtn').textContent = '⏳ Bağlanıyor...';
+            document.getElementById('lastMessage').innerHTML = '<span>Events subscription oluşturuluyor...</span>';
+
+            try {
+                // Kick Events API'ye subscribe ol
+                const response = await fetch('events-subscribe.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: accessToken,
+                        channel_id: currentChannelId
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Subscription response:', data);
+
+                if (!data.success) {
+                    console.log('Subscription uyarı:', data.error);
+                }
+
+                // Subscription başarılı veya zaten var - dinlemeye başla
+                document.getElementById('status').textContent = '🟢 Dinleniyor...';
+                document.getElementById('status').className = 'status connected';
+                document.getElementById('toggleListenBtn').textContent = '⏸️ Dinlemeyi Durdur';
+                document.getElementById('lastMessage').innerHTML = '<span>✅ Kanal chatiniz dinleniyor! Yeni mesajlarda ses çıkacak.</span>';
+                isListening = true;
+
+                // Webhook mesajlarını kontrol et (polling)
+                startWebhookPolling();
+
+            } catch (error) {
+                console.error('Hata:', error);
+                document.getElementById('status').textContent = 'Bağlantı hatası';
+                document.getElementById('status').className = 'status error';
+                document.getElementById('toggleListenBtn').textContent = '🎧 Dinlemeye Başla';
+                document.getElementById('lastMessage').innerHTML = '<span>Hata: ' + error.message + '</span>';
+                isListening = false;
+            }
+        }
+
+        // Webhook mesajlarını kontrol et (ses çalmak için)
+        let chatMessages = [];
+        let processedMessageIds = new Set(); // İşlenen mesaj ID'lerini tut
+        
+        function startWebhookPolling() {
+            console.log('🟢 Polling başlatıldı');
+            
+            // Chat kutusunu göster
+            document.getElementById('chatBox').style.display = 'block';
+            
+            // Her 1.5 saniyede bir sound_trigger.txt kontrol et
+            pollInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('sound_trigger.txt?' + Date.now(), {
+                        method: 'GET',
+                        cache: 'no-store'
+                    });
+                    
+                    if (!response.ok) return;
+                    
+                    const text = await response.text();
+                    if (!text.trim()) return;
+                    
+                    let trigger;
+                    try {
+                        trigger = JSON.parse(text);
+                    } catch (e) {
+                        return;
+                    }
+                    
+                    // Sadece message_id kontrol et - en güvenli yöntem
+                    if (!trigger.message_id) return;
+                    
+                    // Bu mesaj ID'si daha önce işlendiyse atla
+                    if (processedMessageIds.has(trigger.message_id)) {
+                        return;
+                    }
+                    
+                    // Yeni mesaj ID'sini kaydet
+                    processedMessageIds.add(trigger.message_id);
+                    
+                    // Set'i temiz tut (son 100 mesajı hatırla)
+                    if (processedMessageIds.size > 100) {
+                        const iterator = processedMessageIds.values();
+                        for (let i = 0; i < 50; i++) {
+                            processedMessageIds.delete(iterator.next().value);
+                        }
+                    }
+                    
+                    console.log('✅ YENİ MESAJ:', trigger.username, trigger.message);
+                    
+                    // Ses çal
+                    try {
+                        playSound();
+                        document.getElementById('soundStatus').textContent = '🔊 Ses: ÇALDI! ✅';
+                        document.getElementById('soundStatus').style.color = '#27ae60';
+                        
+                        setTimeout(() => {
+                            document.getElementById('soundStatus').textContent = '🔊 Ses: Bekliyor...';
+                            document.getElementById('soundStatus').style.color = '#888';
+                        }, 3000);
+                    } catch (soundError) {
+                        console.error('❌ Ses çalma hatası:', soundError);
+                    }
+                    
+                    // Windows bildirimi göster
+                    showNotification(trigger.username, trigger.message);
+                    
+                    // Mesajı listeye ekle
+                    chatMessages.unshift({
+                        username: trigger.username,
+                        message: trigger.message,
+                        time: new Date().toLocaleTimeString()
+                    });
+                    
+                    if (chatMessages.length > 10) {
+                        chatMessages = chatMessages.slice(0, 10);
+                    }
+                    
+                    updateChatBox();
+                    
+                    document.getElementById('lastMessage').innerHTML = 
+                        '<span class="time">' + new Date().toLocaleTimeString() + '</span><br>' +
+                        '<strong>' + trigger.username + ':</strong> ' + trigger.message;
+                    
+                } catch (e) {
+                    console.log('❌ Polling hatası:', e.message);
+                }
+            }, 1500);
+        }
+        
+        // Chat kutusunu güncelle
+        function updateChatBox() {
+            const chatDiv = document.getElementById('chatMessages');
+            
+            if (chatMessages.length === 0) {
+                chatDiv.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Henüz mesaj yok...</div>';
+                return;
+            }
+            
+            chatDiv.innerHTML = chatMessages.map(msg => 
+                '<div style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">' +
+                '<span style="color: #666; font-size: 11px;">' + msg.time + '</span><br>' +
+                '<strong style="color: #e94560;">' + msg.username + ':</strong> ' +
+                '<span style="color: #fff;">' + msg.message + '</span>' +
+                '</div>'
+            ).join('');
+            
+            // Otomatik scroll en üste (en yeni mesaj)
+            chatDiv.scrollTop = 0;
+        }
+
+        function stopListening() {
+            isListening = false;
+            
+            // Polling'i durdur
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+            
+            document.getElementById('status').textContent = '⏸️ Durduruldu';
+            document.getElementById('status').className = 'status waiting';
+            document.getElementById('toggleListenBtn').textContent = '▶️ Dinlemeye Devam Et';
+            document.getElementById('lastMessage').innerHTML = '<span>⏸️ Dinleme durduruldu. Devam etmek için butona tıklayın.</span>';
+            document.getElementById('chatBox').style.display = 'none';
+            
+            // Chat mesajlarını ve işlenen ID'leri temizle
+            chatMessages = [];
+            processedMessageIds.clear();
+        }
+
+        // Dinlemeyi başlat/durdur toggle
+        function toggleListening() {
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        // Çıkış yap - token'ları temizle
+        function logout() {
+            // Tüm localStorage token'larını sil
+            localStorage.removeItem('kick_access_token');
+            localStorage.removeItem('kick_refresh_token');
+            localStorage.removeItem('kick_token_expires');
+            localStorage.removeItem('kick_channel_id');
+            localStorage.removeItem('pkce_code_verifier');
+            localStorage.removeItem('oauth_state');
+            
+            // Dinlemeyi durdur
+            stopListening();
+            
+            // Değişkenleri sıfırla
+            accessToken = null;
+            refreshToken = null;
+            tokenExpires = null;
+            
+            // Ekranı başlangıç durumuna getir
+            document.getElementById('kickLoginBtn').classList.remove('hidden');
+            document.getElementById('chatControls').classList.add('hidden');
+            document.getElementById('infoBox').innerHTML = '<strong>Kick Chat Ses Bildirimi</strong><br>1. "Kick ile Giriş Yap" butonuna tıkla<br>2. Tüm izinleri onayla<br>3. Kendi kanal chatiniz otomatik yüklenecek<br>4. "Dinlemeye Başla" butonuna tıkla<br>5. Her yeni mesajda ses çıkar';
+            document.getElementById('status').textContent = 'Kick ile bağlan';
+            document.getElementById('status').className = 'status waiting';
+            document.getElementById('tokenInfo').textContent = '';
+            document.getElementById('lastMessage').innerHTML = '<span>Çıkış yapıldı. Token temizlendi.</span>';
+            
+            console.log('Çıkış yapıldı. Tüm tokenlar temizlendi.');
+        }
+
+        // Sayfa kapanınca temizlik (webhook için gerek yok)
+        window.addEventListener('beforeunload', () => {
+            // Webhook aktif kalmaya devam eder (sunucu taraflı)
+        });
+
+
+        // Sayfa yüklendiğinde kontrol et
+        window.onload = async function() {
+            if (accessToken && tokenExpires && Date.now() < parseInt(tokenExpires)) {
+                // Token var ve geçerli
+                document.getElementById('kickLoginBtn').classList.add('hidden');
+                document.getElementById('chatControls').classList.remove('hidden');
+                document.getElementById('infoBox').innerHTML = '<strong>✅ Bağlandınız!</strong><br>Kendi kanal chatinizi dinlemeye başlamak için butona tıklayın.';
+                document.getElementById('status').textContent = '✅ Yetkilendirildi';
+                document.getElementById('status').className = 'status connected';
+                document.getElementById('tokenInfo').textContent = 'Token geçerli - ' + new Date(parseInt(tokenExpires)).toLocaleString();
+                document.getElementById('toggleListenBtn').textContent = '🎧 Dinlemeye Başla';
+                
+                // Kendi kanalını otomatik getir (ama dinlemeyi otomatik başlatma)
+                await loadMyChannel();
+                
+                // Kaydedilmiş ses seçimini uygula
+                // Önce tüm ses butonlarından active class'ını kaldır
+                for (let i = 0; i < 6; i++) {
+                    document.getElementById('sound' + i).classList.remove('active');
+                }
+                // Sadece seçili olana active class'ı ekle
+                document.getElementById('sound' + selectedSound).classList.add('active');
+                
+                // Bildirim ayarını geri yükle
+                if (notificationsEnabled) {
+                    document.getElementById('notificationToggle').checked = true;
+                    document.getElementById('notificationStatus').textContent = '✅ Aktif';
+                    document.getElementById('notificationStatus').style.color = '#27ae60';
+                    // İzni kontrol et, yoksa tekrar iste
+                    if (Notification.permission !== 'granted') {
+                        requestNotificationPermission().then(permission => {
+                            if (permission !== 'granted') {
+                                document.getElementById('notificationToggle').checked = false;
+                                document.getElementById('notificationStatus').textContent = '❌ İzin yok';
+                                document.getElementById('notificationStatus').style.color = '#e74c3c';
+                            }
+                        });
+                    }
+                }
+            } else {
+                // Token yok veya süresi dolmuş
+                localStorage.removeItem('kick_access_token');
+                localStorage.removeItem('kick_refresh_token');
+                localStorage.removeItem('kick_token_expires');
+            }
+        };
+    </script>
+</body>
+</html>

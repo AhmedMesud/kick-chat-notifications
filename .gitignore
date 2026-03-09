@@ -1,0 +1,35 @@
+# Güvenlik - Hassas bilgiler
+config.php
+
+# Log dosyaları
+webhook_log.txt
+sound_trigger.txt
+*.log
+
+# Ortam değişkenleri
+.env
+.env.local
+
+# Geçici dosyalar
+*.tmp
+*.temp
+*.cache
+
+# IDE dosyaları
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# İşletim sistemi dosyaları
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Composer bağımlılıkları (varsa)
+vendor/
+composer.lock
+
+# Node bağımlılıkları (varsa)
+node_modules/
+package-lock.json

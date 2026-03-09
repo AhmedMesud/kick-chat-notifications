@@ -1,0 +1,19 @@
+# Güvenlik ayarları
+
+# 1. .env dosyasını koru (eğer varsa)
+<FilesMatch "^\.env$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# 2. config.php dosyasını koru
+<FilesMatch "^config\.php$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# 3. Log dosyalarını koru - ama sound_trigger.txt hariç (JavaScript bunu okuyor)
+<FilesMatch "^webhook_log\.txt$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
