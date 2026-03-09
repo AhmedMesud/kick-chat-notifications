@@ -517,15 +517,16 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 12px; color: #a0a0a0;" data-i18n="delayLabel">Gecikme:</span>
                     <select id="smartDelay" onchange="updateSmartDelay()" style="flex: 1; padding: 8px; border: 2px solid #0f3460; border-radius: 6px; background: #1a1a2e; color: #fff; font-size: 13px; cursor: pointer;">
-                        <option value="1">1 dakika</option>
-                        <option value="2">2 dakika</option>
-                        <option value="3">3 dakika</option>
-                        <option value="5" selected>5 dakika</option>
-                        <option value="10">10 dakika</option>
-                        <option value="15">15 dakika</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
                     </select>
+                    <span id="minutesLabel" style="font-size: 12px; color: #a0a0a0;" data-i18n="minutesLabel">dakika</span>
                 </div>
-                <div id="smartStatus" style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 0px;" data-i18n="smartStatus">5 dakika seçili</div>
+                <div id="smartStatus" style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 0px;"></div>
             </div>
 
             <button class="btn-logout" onclick="logout()" data-i18n="logoutBtn">🚪 Çıkış Yap (Token'ı Temizle)</button>
@@ -632,7 +633,9 @@
                 loggedOut: 'Logged out. Token cleared.',
                 smartNotifyLabel: '⏱️ Smart Notification: Show desktop notification for first message after inactivity',
                 delayLabel: 'Delay:',
-                smartStatus: 'minutes selected'
+                minutesLabel: 'minutes',
+                selected: 'selected',
+                minute: 'minute'
             },
             es: {
                 appTitle: '🔔 Notificaciones Chat Kick',
@@ -675,7 +678,12 @@
                 contact: 'Contacto:',
                 channelListening: '✅ ¡Chat de tu canal en escucha! Sonará para mensajes nuevos.',
                 listeningStopped: '⏸️ Escucha detenida. Haz clic para reanudar.',
-                loggedOut: 'Sesión cerrada. Token eliminado.'
+                loggedOut: 'Sesión cerrada. Token eliminado.',
+                smartNotifyLabel: '⏱️ Notificación Inteligente: Mostrar notificación para el primer mensaje después de inactividad',
+                delayLabel: 'Retraso:',
+                minutesLabel: 'minutos',
+                selected: 'seleccionado',
+                minute: 'minuto'
             },
             de: {
                 appTitle: '🔔 Kick Chat Benachrichtigungen',
@@ -764,7 +772,9 @@
                 loggedOut: 'Çıkış yapıldı. Token temizlendi.',
                 smartNotifyLabel: '⏱️ Akıllı Bildirim: Eğer mesaj gelmeyen süre geçtiyse ilk mesajda bildirim göster',
                 delayLabel: 'Gecikme:',
-                smartStatus: 'dakika seçili'
+                minutesLabel: 'dakika',
+                selected: 'seçili',
+                minute: 'dakika'
             },
             ar: {
                 appTitle: '🔔 إشعارات دردشة Kick',
@@ -850,7 +860,12 @@
                 contact: 'Contato:',
                 channelListening: '✅ Chat do seu canal sendo ouvido! Som tocará para novas mensagens.',
                 listeningStopped: '⏸️ Escuta parada. Clique para continuar.',
-                loggedOut: 'Desconectado. Token limpo.'
+                loggedOut: 'Desconectado. Token limpo.',
+                smartNotifyLabel: '⏱️ Notificação Inteligente: Mostrar notificação para primeira mensagem após inatividade',
+                delayLabel: 'Atraso:',
+                minutesLabel: 'minutos',
+                selected: 'selecionado',
+                minute: 'minuto'
             },
             zh: {
                 appTitle: '🔔 Kick 聊天通知',
@@ -1244,7 +1259,14 @@
             localStorage.setItem('kick_smart_delay', smartDelayMinutes);
             
             const t = TRANSLATIONS[currentLang];
-            document.getElementById('smartStatus').textContent = smartDelayMinutes + ' ' + t.smartStatus;
+            document.getElementById('smartStatus').textContent = smartDelayMinutes + ' ' + t.selected;
+        }
+
+        // Sayfa dil değiştiğinde dropdown etiketini güncelle
+        function updateSmartNotificationLabels() {
+            const t = TRANSLATIONS[currentLang];
+            document.getElementById('minutesLabel').textContent = t.minutesLabel;
+            document.getElementById('smartStatus').textContent = smartDelayMinutes + ' ' + t.selected;
         }
 
         // Akıllı bildirim kontrolü - mesaj geldiğinde çağrılır
