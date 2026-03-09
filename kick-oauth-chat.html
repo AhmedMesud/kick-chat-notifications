@@ -315,65 +315,164 @@
         .message-content {
             flex: 1;
         }
+
+        /* Dil Seçici */
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .language-btn {
+            background: #1a1a2e;
+            border: 2px solid #0f3460;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #fff;
+        }
+
+        .language-btn:hover {
+            border-color: #e94560;
+            background: #0f3460;
+        }
+
+        .language-btn.active {
+            border-color: #27ae60;
+            background: rgba(39, 174, 96, 0.2);
+        }
+
+        .language-btn .flag {
+            font-size: 16px;
+        }
+
+        /* Footer / İmza */
+        .footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(233, 69, 96, 0.3);
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .footer .author {
+            color: #e94560;
+            font-weight: 600;
+        }
+
+        .footer .contact {
+            color: #0ff;
+            text-decoration: none;
+        }
+
+        .footer .contact:hover {
+            text-decoration: underline;
+        }
+
+        [data-i18n] {
+            transition: opacity 0.3s;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Dil Seçici -->
+        <div class="language-selector">
+            <button class="language-btn" onclick="setLanguage('en')" data-lang="en">
+                <span class="flag">🇬🇧</span> EN
+            </button>
+            <button class="language-btn" onclick="setLanguage('es')" data-lang="es">
+                <span class="flag">🇪🇸</span> ES
+            </button>
+            <button class="language-btn" onclick="setLanguage('de')" data-lang="de">
+                <span class="flag">🇩🇪</span> DE
+            </button>
+            <button class="language-btn active" onclick="setLanguage('tr')" data-lang="tr">
+                <span class="flag">🇹🇷</span> TR
+            </button>
+            <button class="language-btn" onclick="setLanguage('ar')" data-lang="ar">
+                <span class="flag">🇸🇦</span> AR
+            </button>
+            <button class="language-btn" onclick="setLanguage('pt')" data-lang="pt">
+                <span class="flag">🇵🇹</span> PT
+            </button>
+            <button class="language-btn" onclick="setLanguage('zh')" data-lang="zh">
+                <span class="flag">🇨🇳</span> ZH
+            </button>
+            <button class="language-btn" onclick="setLanguage('hi')" data-lang="hi">
+                <span class="flag">🇮🇳</span> HI
+            </button>
+            <button class="language-btn" onclick="setLanguage('ru')" data-lang="ru">
+                <span class="flag">🇷🇺</span> RU
+            </button>
+        </div>
+
         <div class="header">
-            <h1>🔔 Kick Chat Ses</h1>
-            <span class="status waiting" id="status">Kick ile bağlan</span>
+            <h1 data-i18n="appTitle">🔔 Kick Chat Ses</h1>
+            <span class="status waiting" id="status" data-i18n="statusConnect">Kick ile bağlan</span>
         </div>
 
         <div class="info-box" id="infoBox">
-            <strong>Kick Chat Ses Bildirimi</strong><br>
-            1. "Kick ile Giriş Yap" butonuna tıkla<br>
-            2. Tüm izinleri onayla<br>
-            3. Kendi kanalın otomatik yüklenecek<br>
-            4. "Dinlemeye Başla" butonuna tıkla<br>
-            5. Her yeni mesajda ses çıkar
+            <strong data-i18n="infoTitle">Kick Chat Ses Bildirimi</strong><br>
+            <span data-i18n="infoStep1">1. "Kick ile Giriş Yap" butonuna tıkla</span><br>
+            <span data-i18n="infoStep2">2. Tüm izinleri onayla</span><br>
+            <span data-i18n="infoStep3">3. Kendi kanalın otomatik yüklenecek</span><br>
+            <span data-i18n="infoStep4">4. "Dinlemeye Başla" butonuna tıkla</span><br>
+            <span data-i18n="infoStep5">5. Her yeni mesajda ses çıkar</span>
         </div>
 
         <!-- Adım 1: Kick OAuth -->
-        <button class="btn-kick" id="kickLoginBtn" onclick="redirectToKick()">
+        <button class="btn-kick" id="kickLoginBtn" onclick="redirectToKick()" data-i18n="loginBtn">
             🟢 Kick ile Giriş Yap
         </button>
 
         <!-- Adım 2: Bağlandıktan sonra -->
         <div id="chatControls" class="hidden">
             <div class="info-box" id="channelInfo" style="text-align: center; margin-bottom: 15px;">
-                <strong>📺 Kanal:</strong> <span id="channelName">Yükleniyor...</span>
+                <strong>📺 <span data-i18n="channelLabel">Kanal:</span></strong> <span id="channelName" data-i18n="loading">Yükleniyor...</span>
             </div>
 
             <div class="button-group">
-                <button class="btn-primary" id="toggleListenBtn" onclick="toggleListening()">🎧 Dinlemeye Başla</button>
+                <button class="btn-primary" id="toggleListenBtn" onclick="toggleListening()" data-i18n="startListening">🎧 Dinlemeye Başla</button>
             </div>
 
             <div class="sound-selector">
-                <label>🔔 Bildirim Sesi Seçin (Önizleme için tıklayın):</label>
+                <label data-i18n="soundLabel">🔔 Bildirim Sesi Seçin (Önizleme için tıklayın):</label>
                 <div class="sound-options">
                     <div class="sound-option" onclick="selectSound(0)" id="sound0">
                         <span class="icon">🎵</span>
-                        <span class="name">Çift Bip</span>
+                        <span class="name" data-i18n="sound0">Çift Bip</span>
                     </div>
                     <div class="sound-option" onclick="selectSound(1)" id="sound1">
                         <span class="icon">🔔🔔🔔</span>
-                        <span class="name">Üçlü</span>
+                        <span class="name" data-i18n="sound1">Üçlü</span>
                     </div>
                     <div class="sound-option" onclick="selectSound(2)" id="sound2">
                         <span class="icon">📢</span>
-                        <span class="name">Uzun Bip</span>
+                        <span class="name" data-i18n="sound2">Uzun Bip</span>
                     </div>
                     <div class="sound-option" onclick="selectSound(3)" id="sound3">
                         <span class="icon">✨</span>
-                        <span class="name">Zil</span>
+                        <span class="name" data-i18n="sound3">Zil</span>
                     </div>
                     <div class="sound-option" onclick="selectSound(4)" id="sound4">
                         <span class="icon">🥁</span>
-                        <span class="name">Bas</span>
+                        <span class="name" data-i18n="sound4">Bas</span>
                     </div>
                     <div class="sound-option" onclick="selectSound(5)" id="sound5">
                         <span class="icon">🎹</span>
-                        <span class="name">Marimba</span>
+                        <span class="name" data-i18n="sound5">Marimba</span>
                     </div>
                 </div>
             </div>
@@ -387,31 +486,39 @@
             <div class="notification-toggle" style="margin-bottom: 15px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 8px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;">
                     <input type="checkbox" id="notificationToggle" onchange="toggleNotifications()" style="width: 18px; height: 18px; cursor: pointer;">
-                    <span>🔔 Windows Bildirimleri</span>
+                    <span data-i18n="windowsNotifications">🔔 Windows Bildirimleri</span>
                 </label>
-                <div id="notificationStatus" style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 28px;">Kapalı</div>
+                <div id="notificationStatus" style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 28px;" data-i18n="off">Kapalı</div>
             </div>
 
-            <button class="btn-logout" onclick="logout()">🚪 Çıkış Yap (Token'ı Temizle)</button>
+            <button class="btn-logout" onclick="logout()" data-i18n="logoutBtn">🚪 Çıkış Yap (Token'ı Temizle)</button>
         </div>
 
         <!-- Chat Mesajları Göstergesi -->
         <div id="chatBox" style="background: rgba(15, 52, 96, 0.5); border-radius: 10px; padding: 15px; margin-top: 15px; display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <strong>💬 Son Mesajlar</strong>
-                <span id="soundStatus" style="font-size: 12px; color: #888;">🔊 Ses: Bekliyor...</span>
+                <strong data-i18n="recentMessages">💬 Son Mesajlar</strong>
+                <span id="soundStatus" style="font-size: 12px; color: #888;" data-i18n="soundWaiting">🔊 Ses: Bekliyor...</span>
             </div>
             <div id="chatMessages" style="max-height: 200px; overflow-y: auto; font-size: 13px; line-height: 1.6;">
-                <div style="color: #888; text-align: center; padding: 20px;">Henüz mesaj yok...</div>
+                <div style="color: #888; text-align: center; padding: 20px;" data-i18n="noMessages">Henüz mesaj yok...</div>
             </div>
         </div>
 
         <div class="last-message" id="lastMessage">
-            <span>Henüz bağlanmadınız...</span>
+            <span data-i18n="notConnected">Henüz bağlanmadınız...</span>
         </div>
 
 
         <div class="token-info" id="tokenInfo"></div>
+
+        <!-- Footer / İmza -->
+        <div class="footer">
+            <div data-i18n="madeBy">Made by</div>
+            <div class="author">Ahmed Mesud</div>
+            <div data-i18n="contact">Contact:</div>
+            <a href="mailto:ahmedmesudb@gmail.com" class="contact">ahmedmesudb@gmail.com</a>
+        </div>
     </div>
 
     <script>
@@ -434,10 +541,443 @@
         let currentChannelName = '';
         let selectedSound = parseInt(localStorage.getItem('kick_selected_sound') || '0');
         let notificationsEnabled = localStorage.getItem('kick_notifications') === 'true';
+        let currentLang = localStorage.getItem('kick_lang') || 'tr';
         const COOLDOWN_MS = 2000;
 
         // Bilinen botlar
         const BOTS = new Set(['streamelements', 'nightbot', 'moobot', 'botrix', 'kickbot', 'kick', 'streamlabs']);
+
+        // Çeviriler
+        const TRANSLATIONS = {
+            en: {
+                appTitle: '🔔 Kick Chat Notifications',
+                statusConnect: 'Connect to Kick',
+                infoTitle: 'Kick Chat Notification',
+                infoStep1: '1. Click "Login with Kick" button',
+                infoStep2: '2. Approve all permissions',
+                infoStep3: '3. Your channel will load automatically',
+                infoStep4: '4. Click "Start Listening" button',
+                infoStep5: '5. Sound will play for each new message',
+                loginBtn: '🟢 Login with Kick',
+                channelLabel: 'Channel:',
+                loading: 'Loading...',
+                startListening: '🎧 Start Listening',
+                stopListening: '⏸️ Stop Listening',
+                resumeListening: '▶️ Resume Listening',
+                soundLabel: '🔔 Select Notification Sound (Click to preview):',
+                sound0: 'Double Beep',
+                sound1: 'Triple',
+                sound2: 'Long Beep',
+                sound3: 'Bell',
+                sound4: 'Bass',
+                sound5: 'Marimba',
+                windowsNotifications: '🔔 Windows Notifications',
+                off: 'Off',
+                on: '✅ Active',
+                denied: '❌ Permission denied',
+                logoutBtn: '🚪 Logout (Clear Token)',
+                recentMessages: '💬 Recent Messages',
+                soundWaiting: '🔊 Sound: Waiting...',
+                soundPlayed: '🔊 Sound: PLAYED! ✅',
+                noMessages: 'No messages yet...',
+                notConnected: 'Not connected yet...',
+                connected: '✅ Connected',
+                authorized: '✅ Authorized',
+                listening: '🟢 Listening...',
+                stopped: '⏸️ Stopped',
+                error: 'Connection error',
+                madeBy: 'Made by',
+                contact: 'Contact:',
+                channelListening: '✅ Your channel chat is being listened! Sound will play for new messages.',
+                listeningStopped: '⏸️ Listening stopped. Click button to resume.',
+                loggedOut: 'Logged out. Token cleared.'
+            },
+            es: {
+                appTitle: '🔔 Notificaciones Chat Kick',
+                statusConnect: 'Conectar con Kick',
+                infoTitle: 'Notificación Chat Kick',
+                infoStep1: '1. Haz clic en "Iniciar con Kick"',
+                infoStep2: '2. Aprueba todos los permisos',
+                infoStep3: '3. Tu canal cargará automáticamente',
+                infoStep4: '4. Haz clic en "Iniciar Escucha"',
+                infoStep5: '5. Sonará para cada mensaje nuevo',
+                loginBtn: '🟢 Iniciar con Kick',
+                channelLabel: 'Canal:',
+                loading: 'Cargando...',
+                startListening: '🎧 Iniciar Escucha',
+                stopListening: '⏸️ Detener Escucha',
+                resumeListening: '▶️ Reanudar Escucha',
+                soundLabel: '🔔 Seleccionar Sonido (Clic para preescuchar):',
+                sound0: 'Doble Bip',
+                sound1: 'Triple',
+                sound2: 'Bip Largo',
+                sound3: 'Campana',
+                sound4: 'Bajo',
+                sound5: 'Marimba',
+                windowsNotifications: '🔔 Notificaciones Windows',
+                off: 'Apagado',
+                on: '✅ Activo',
+                denied: '❌ Permiso denegado',
+                logoutBtn: '🚪 Cerrar Sesión',
+                recentMessages: '💬 Mensajes Recientes',
+                soundWaiting: '🔊 Sonido: Esperando...',
+                soundPlayed: '🔊 Sonido: ¡SONÓ! ✅',
+                noMessages: 'Aún no hay mensajes...',
+                notConnected: 'Aún no conectado...',
+                connected: '✅ Conectado',
+                authorized: '✅ Autorizado',
+                listening: '🟢 Escuchando...',
+                stopped: '⏸️ Detenido',
+                error: 'Error de conexión',
+                madeBy: 'Creado por',
+                contact: 'Contacto:',
+                channelListening: '✅ ¡Chat de tu canal en escucha! Sonará para mensajes nuevos.',
+                listeningStopped: '⏸️ Escucha detenida. Haz clic para reanudar.',
+                loggedOut: 'Sesión cerrada. Token eliminado.'
+            },
+            de: {
+                appTitle: '🔔 Kick Chat Benachrichtigungen',
+                statusConnect: 'Mit Kick verbinden',
+                infoTitle: 'Kick Chat Benachrichtigung',
+                infoStep1: '1. Klicke "Mit Kick anmelden"',
+                infoStep2: '2. Alle Berechtigungen genehmigen',
+                infoStep3: '3. Dein Kanal wird automatisch geladen',
+                infoStep4: '4. Klicke "Hören starten"',
+                infoStep5: '5. Ton wird bei jeder neuen Nachricht abgespielt',
+                loginBtn: '🟢 Mit Kick anmelden',
+                channelLabel: 'Kanal:',
+                loading: 'Lädt...',
+                startListening: '🎧 Hören starten',
+                stopListening: '⏸️ Hören stoppen',
+                resumeListening: '▶️ Hören fortsetzen',
+                soundLabel: '🔔 Benachrichtigungston wählen (Klicken zur Vorschau):',
+                sound0: 'Doppelter Piep',
+                sound1: 'Dreifach',
+                sound2: 'Langer Piep',
+                sound3: 'Glocke',
+                sound4: 'Bass',
+                sound5: 'Marimba',
+                windowsNotifications: '🔔 Windows Benachrichtigungen',
+                off: 'Aus',
+                on: '✅ Aktiv',
+                denied: '❌ Berechtigung verweigert',
+                logoutBtn: '🚪 Abmelden',
+                recentMessages: '💬 Letzte Nachrichten',
+                soundWaiting: '🔊 Ton: Wartet...',
+                soundPlayed: '🔊 Ton: GESPIELT! ✅',
+                noMessages: 'Noch keine Nachrichten...',
+                notConnected: 'Noch nicht verbunden...',
+                connected: '✅ Verbunden',
+                authorized: '✅ Autorisiert',
+                listening: '🟢 Hört zu...',
+                stopped: '⏸️ Gestoppt',
+                error: 'Verbindungsfehler',
+                madeBy: 'Erstellt von',
+                contact: 'Kontakt:',
+                channelListening: '✅ Dein Kanal-Chat wird überwacht! Ton wird bei neuen Nachrichten abgespielt.',
+                listeningStopped: '⏸️ Hören gestoppt. Klicke zum Fortsetzen.',
+                loggedOut: 'Abgemeldet. Token gelöscht.'
+            },
+            tr: {
+                appTitle: '🔔 Kick Chat Ses',
+                statusConnect: 'Kick ile bağlan',
+                infoTitle: 'Kick Chat Ses Bildirimi',
+                infoStep1: '1. "Kick ile Giriş Yap" butonuna tıkla',
+                infoStep2: '2. Tüm izinleri onayla',
+                infoStep3: '3. Kendi kanalın otomatik yüklenecek',
+                infoStep4: '4. "Dinlemeye Başla" butonuna tıkla',
+                infoStep5: '5. Her yeni mesajda ses çıkar',
+                loginBtn: '🟢 Kick ile Giriş Yap',
+                channelLabel: 'Kanal:',
+                loading: 'Yükleniyor...',
+                startListening: '🎧 Dinlemeye Başla',
+                stopListening: '⏸️ Dinlemeyi Durdur',
+                resumeListening: '▶️ Dinlemeye Devam Et',
+                soundLabel: '🔔 Bildirim Sesi Seçin (Önizleme için tıklayın):',
+                sound0: 'Çift Bip',
+                sound1: 'Üçlü',
+                sound2: 'Uzun Bip',
+                sound3: 'Zil',
+                sound4: 'Bas',
+                sound5: 'Marimba',
+                windowsNotifications: '🔔 Windows Bildirimleri',
+                off: 'Kapalı',
+                on: '✅ Aktif',
+                denied: '❌ İzin reddedildi',
+                logoutBtn: '🚪 Çıkış Yap (Token\'ı Temizle)',
+                recentMessages: '💬 Son Mesajlar',
+                soundWaiting: '🔊 Ses: Bekliyor...',
+                soundPlayed: '🔊 Ses: ÇALDI! ✅',
+                noMessages: 'Henüz mesaj yok...',
+                notConnected: 'Henüz bağlanmadınız...',
+                connected: '✅ Bağlandınız!',
+                authorized: '✅ Yetkilendirildi',
+                listening: '🟢 Dinleniyor...',
+                stopped: '⏸️ Durduruldu',
+                error: 'Bağlantı hatası',
+                madeBy: 'Yapan:',
+                contact: 'İletişim:',
+                channelListening: '✅ Kanal chatiniz dinleniyor! Yeni mesajlarda ses çıkacak.',
+                listeningStopped: '⏸️ Dinleme durduruldu. Devam etmek için butona tıklayın.',
+                loggedOut: 'Çıkış yapıldı. Token temizlendi.'
+            },
+            ar: {
+                appTitle: '🔔 إشعارات دردشة Kick',
+                statusConnect: 'الاتصال بـ Kick',
+                infoTitle: 'إشعار دردشة Kick',
+                infoStep1: '1. انقر فوق "تسجيل الدخول بـ Kick"',
+                infoStep2: '2. وافق على جميع الأذونات',
+                infoStep3: '3. سيتم تحميل قناتك تلقائياً',
+                infoStep4: '4. انقر فوق "بدء الاستماع"',
+                infoStep5: '5. سيتم تشغيل الصوت لكل رسالة جديدة',
+                loginBtn: '🟢 تسجيل الدخول بـ Kick',
+                channelLabel: 'القناة:',
+                loading: 'جاري التحميل...',
+                startListening: '🎧 بدء الاستماع',
+                stopListening: '⏸️ إيقاف الاستماع',
+                resumeListening: '▶️ استئناف الاستماع',
+                soundLabel: '🔔 اختر صوت الإشعار (انقر للمعاينة):',
+                sound0: 'صفارتان',
+                sound1: 'ثلاثي',
+                sound2: 'صفارة طويلة',
+                sound3: 'جرس',
+                sound4: 'بيس',
+                sound5: 'ماريمبا',
+                windowsNotifications: '🔔 إشعارات Windows',
+                off: 'مغلق',
+                on: '✅ نشط',
+                denied: '❌ تم رفض الإذن',
+                logoutBtn: '🚪 تسجيل الخروج',
+                recentMessages: '💬 الرسائل الأخيرة',
+                soundWaiting: '🔊 الصوت: في انتظار...',
+                soundPlayed: '🔊 الصوت: تم التشغيل! ✅',
+                noMessages: 'لا توجد رسائل بعد...',
+                notConnected: 'لم يتم الاتصال بعد...',
+                connected: '✅ متصل',
+                authorized: '✅ مخول',
+                listening: '🟢 يستمع...',
+                stopped: '⏸️ متوقف',
+                error: 'خطأ في الاتصال',
+                madeBy: 'تم الإنشاء بواسطة',
+                contact: 'تواصل:',
+                channelListening: '✅ يتم الاستماع إلى دردشة قناتك! سيتم تشغيل الصوت للرسائل الجديدة.',
+                listeningStopped: '⏸️ تم إيقاف الاستماع. انقر للاستئناف.',
+                loggedOut: 'تم تسجيل الخروج. تم مسح الرمز المميز.'
+            },
+            pt: {
+                appTitle: '🔔 Notificações Chat Kick',
+                statusConnect: 'Conectar ao Kick',
+                infoTitle: 'Notificação Chat Kick',
+                infoStep1: '1. Clique em "Entrar com Kick"',
+                infoStep2: '2. Aprove todas as permissões',
+                infoStep3: '3. Seu canal carregará automaticamente',
+                infoStep4: '4. Clique em "Iniciar Escuta"',
+                infoStep5: '5. Som tocará para cada nova mensagem',
+                loginBtn: '🟢 Entrar com Kick',
+                channelLabel: 'Canal:',
+                loading: 'Carregando...',
+                startListening: '🎧 Iniciar Escuta',
+                stopListening: '⏸️ Parar Escuta',
+                resumeListening: '▶️ Continuar Escuta',
+                soundLabel: '🔔 Selecionar Som (Clique para prévia):',
+                sound0: 'Bipe Duplo',
+                sound1: 'Triplo',
+                sound2: 'Bipe Longo',
+                sound3: 'Sino',
+                sound4: 'Grave',
+                sound5: 'Marimba',
+                windowsNotifications: '🔔 Notificações Windows',
+                off: 'Desligado',
+                on: '✅ Ativo',
+                denied: '❌ Permissão negada',
+                logoutBtn: '🚪 Sair',
+                recentMessages: '💬 Mensagens Recentes',
+                soundWaiting: '🔊 Som: Aguardando...',
+                soundPlayed: '🔊 Som: TOCOU! ✅',
+                noMessages: 'Ainda sem mensagens...',
+                notConnected: 'Ainda não conectado...',
+                connected: '✅ Conectado',
+                authorized: '✅ Autorizado',
+                listening: '🟢 Ouvindo...',
+                stopped: '⏸️ Parado',
+                error: 'Erro de conexão',
+                madeBy: 'Criado por',
+                contact: 'Contato:',
+                channelListening: '✅ Chat do seu canal sendo ouvido! Som tocará para novas mensagens.',
+                listeningStopped: '⏸️ Escuta parada. Clique para continuar.',
+                loggedOut: 'Desconectado. Token limpo.'
+            },
+            zh: {
+                appTitle: '🔔 Kick 聊天通知',
+                statusConnect: '连接到 Kick',
+                infoTitle: 'Kick 聊天通知',
+                infoStep1: '1. 点击"使用 Kick 登录"',
+                infoStep2: '2. 批准所有权限',
+                infoStep3: '3. 您的频道将自动加载',
+                infoStep4: '4. 点击"开始收听"',
+                infoStep5: '5. 每条新消息都会播放声音',
+                loginBtn: '🟢 使用 Kick 登录',
+                channelLabel: '频道:',
+                loading: '加载中...',
+                startListening: '🎧 开始收听',
+                stopListening: '⏸️ 停止收听',
+                resumeListening: '▶️ 继续收听',
+                soundLabel: '🔔 选择通知声音（点击预览）:',
+                sound0: '双哔声',
+                sound1: '三声',
+                sound2: '长哔声',
+                sound3: '铃声',
+                sound4: '低音',
+                sound5: '木琴',
+                windowsNotifications: '🔔 Windows 通知',
+                off: '关闭',
+                on: '✅ 已激活',
+                denied: '❌ 权限被拒绝',
+                logoutBtn: '🚪 退出',
+                recentMessages: '💬 最近消息',
+                soundWaiting: '🔊 声音: 等待中...',
+                soundPlayed: '🔊 声音: 已播放! ✅',
+                noMessages: '暂无消息...',
+                notConnected: '尚未连接...',
+                connected: '✅ 已连接',
+                authorized: '✅ 已授权',
+                listening: '🟢 收听中...',
+                stopped: '⏸️ 已停止',
+                error: '连接错误',
+                madeBy: '制作者',
+                contact: '联系方式:',
+                channelListening: '✅ 正在收听您的频道聊天！新消息将播放声音。',
+                listeningStopped: '⏸️ 收听已停止。点击继续。',
+                loggedOut: '已退出。令牌已清除。'
+            },
+            hi: {
+                appTitle: '🔔 Kick चैट सूचनाएं',
+                statusConnect: 'Kick से कनेक्ट करें',
+                infoTitle: 'Kick चैट सूचना',
+                infoStep1: '1. "Kick से लॉगिन" पर क्लिक करें',
+                infoStep2: '2. सभी अनुमतियों को स्वीकार करें',
+                infoStep3: '3. आपका चैनल स्वचालित रूप से लोड होगा',
+                infoStep4: '4. "सुनना शुरू करें" पर क्लिक करें',
+                infoStep5: '5. हर नए संदेश पर ध्वनि बजेगी',
+                loginBtn: '🟢 Kick से लॉगिन करें',
+                channelLabel: 'चैनल:',
+                loading: 'लोड हो रहा है...',
+                startListening: '🎧 सुनना शुरू करें',
+                stopListening: '⏸️ सुनना बंद करें',
+                resumeListening: '▶️ सुनना जारी रखें',
+                soundLabel: '🔔 सूचना ध्वनि चुनें (पूर्वावलोकन के लिए क्लिक करें):',
+                sound0: 'दो बीप',
+                sound1: 'तीन गुना',
+                sound2: 'लंबा बीप',
+                sound3: 'घंटी',
+                sound4: 'बास',
+                sound5: 'मरिम्बा',
+                windowsNotifications: '🔔 Windows सूचनाएं',
+                off: 'बंद',
+                on: '✅ सक्रिय',
+                denied: '❌ अनुमति अस्वीकृत',
+                logoutBtn: '🚪 लॉगआउट',
+                recentMessages: '💬 हाल के संदेश',
+                soundWaiting: '🔊 ध्वनि: प्रतीक्षारत...',
+                soundPlayed: '🔊 ध्वनि: बजी! ✅',
+                noMessages: 'अभी तक कोई संदेश नहीं...',
+                notConnected: 'अभी तक कनेक्ट नहीं...',
+                connected: '✅ कनेक्टेड',
+                authorized: '✅ अधिकृत',
+                listening: '🟢 सुन रहा है...',
+                stopped: '⏸️ रुका हुआ',
+                error: 'कनेक्शन त्रुटि',
+                madeBy: 'निर्माता',
+                contact: 'संपर्क:',
+                channelListening: '✅ आपके चैनल चैट को सुना जा रहा है! नए संदेशों पर ध्वनि बजेगी।',
+                listeningStopped: '⏸️ सुनना बंद हो गया। जारी रखने के लिए क्लिक करें।',
+                loggedOut: 'लॉगआउट हो गया। टोकन साफ हो गया।'
+            },
+            ru: {
+                appTitle: '🔔 Уведомления Чата Kick',
+                statusConnect: 'Подключиться к Kick',
+                infoTitle: 'Уведомление Чата Kick',
+                infoStep1: '1. Нажмите "Войти с Kick"',
+                infoStep2: '2. Одобрите все разрешения',
+                infoStep3: '3. Ваш канал загрузится автоматически',
+                infoStep4: '4. Нажмите "Начать прослушивание"',
+                infoStep5: '5. Звук будет воспроизводиться для каждого нового сообщения',
+                loginBtn: '🟢 Войти с Kick',
+                channelLabel: 'Канал:',
+                loading: 'Загрузка...',
+                startListening: '🎧 Начать прослушивание',
+                stopListening: '⏸️ Остановить прослушивание',
+                resumeListening: '▶️ Продолжить прослушивание',
+                soundLabel: '🔔 Выберите звук уведомления (нажмите для предпросмотра):',
+                sound0: 'Двойной сигнал',
+                sound1: 'Тройной',
+                sound2: 'Длинный сигнал',
+                sound3: 'Колокольчик',
+                sound4: 'Бас',
+                sound5: 'Маримба',
+                windowsNotifications: '🔔 Уведомления Windows',
+                off: 'Выключено',
+                on: '✅ Активно',
+                denied: '❌ Разрешение отклонено',
+                logoutBtn: '🚪 Выйти',
+                recentMessages: '💬 Недавние сообщения',
+                soundWaiting: '🔊 Звук: Ожидание...',
+                soundPlayed: '🔊 Звук: ВОСПРОИЗВЕДЕН! ✅',
+                noMessages: 'Пока нет сообщений...',
+                notConnected: 'Еще не подключено...',
+                connected: '✅ Подключено',
+                authorized: '✅ Авторизовано',
+                listening: '🟢 Прослушивание...',
+                stopped: '⏸️ Остановлено',
+                error: 'Ошибка подключения',
+                madeBy: 'Создано',
+                contact: 'Контакт:',
+                channelListening: '✅ Чат вашего канала прослушивается! Звук будет воспроизводиться для новых сообщений.',
+                listeningStopped: '⏸️ Прослушивание остановлено. Нажмите для продолжения.',
+                loggedOut: 'Вышли из системы. Токен очищен.'
+            }
+        };
+
+        // Dil değiştirme fonksiyonu
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('kick_lang', lang);
+            
+            // Dil butonlarını güncelle
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Sayfa içeriğini güncelle
+            updatePageLanguage();
+        }
+
+        // Sayfa dilini güncelle
+        function updatePageLanguage() {
+            const t = TRANSLATIONS[currentLang];
+            
+            // data-i18n attribute'u olan tüm elementleri güncelle
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (t[key]) {
+                    // Emoji ve HTML koruma
+                    if (key === 'logoutBtn' || key === 'loginBtn' || key === 'startListening') {
+                        // Bu butonlar emoji içeriyor, sadece metni değiştir
+                        const emoji = el.textContent.match(/^[\ud800-\udbff][\udc00-\udfff]|./gu)?.[0] || '';
+                        el.textContent = emoji + ' ' + t[key].replace(/^[\ud800-\udbff][\udc00-\udfff]\s*/gu, '');
+                    } else {
+                        el.textContent = t[key];
+                    }
+                }
+            });
+            
+            // HTML lang attribute'unu güncelle
+            document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 
+                                          currentLang === 'ar' ? 'ar' : currentLang;
+        }
 
         // ===== FONKSİYONLAR (Önce tanımlanmalı) =====
 
@@ -773,23 +1313,25 @@
 
         // Chat dinlemeyi başlat (Kick Events API ile)
         async function startListening() {
+            const t = TRANSLATIONS[currentLang];
+            
             if (!currentChannelId) {
-                alert('Kanal bilgisi yüklenemedi. Lütfen tekrar giriş yapın.');
+                alert(t.loading + ' - Channel info failed. Please login again.');
                 return;
             }
 
             if (!accessToken) {
-                alert('Önce Kick ile giriş yapmalısınız!');
+                alert(t.loginBtn + ' - ' + t.notConnected);
                 return;
             }
 
             initAudio();
             playSound(); // Test sesi
 
-            document.getElementById('status').textContent = 'Bağlanıyor...';
+            document.getElementById('status').textContent = t.loading;
             document.getElementById('status').className = 'status waiting';
-            document.getElementById('toggleListenBtn').textContent = '⏳ Bağlanıyor...';
-            document.getElementById('lastMessage').innerHTML = '<span>Events subscription oluşturuluyor...</span>';
+            document.getElementById('toggleListenBtn').textContent = '⏳ ' + t.loading;
+            document.getElementById('lastMessage').innerHTML = '<span>Events subscription...</span>';
 
             try {
                 // Kick Events API'ye subscribe ol
@@ -812,10 +1354,10 @@
                 }
 
                 // Subscription başarılı veya zaten var - dinlemeye başla
-                document.getElementById('status').textContent = '🟢 Dinleniyor...';
+                document.getElementById('status').textContent = t.listening;
                 document.getElementById('status').className = 'status connected';
-                document.getElementById('toggleListenBtn').textContent = '⏸️ Dinlemeyi Durdur';
-                document.getElementById('lastMessage').innerHTML = '<span>✅ Kanal chatiniz dinleniyor! Yeni mesajlarda ses çıkacak.</span>';
+                document.getElementById('toggleListenBtn').textContent = t.stopListening;
+                document.getElementById('lastMessage').innerHTML = '<span>' + t.channelListening + '</span>';
                 isListening = true;
 
                 // Webhook mesajlarını kontrol et (polling)
@@ -823,10 +1365,10 @@
 
             } catch (error) {
                 console.error('Hata:', error);
-                document.getElementById('status').textContent = 'Bağlantı hatası';
+                document.getElementById('status').textContent = t.error;
                 document.getElementById('status').className = 'status error';
-                document.getElementById('toggleListenBtn').textContent = '🎧 Dinlemeye Başla';
-                document.getElementById('lastMessage').innerHTML = '<span>Hata: ' + error.message + '</span>';
+                document.getElementById('toggleListenBtn').textContent = t.startListening;
+                document.getElementById('lastMessage').innerHTML = '<span>' + t.error + ': ' + error.message + '</span>';
                 isListening = false;
             }
         }
@@ -884,12 +1426,13 @@
                     
                     // Ses çal
                     try {
+                        const t = TRANSLATIONS[currentLang];
                         playSound();
-                        document.getElementById('soundStatus').textContent = '🔊 Ses: ÇALDI! ✅';
+                        document.getElementById('soundStatus').textContent = t.soundPlayed;
                         document.getElementById('soundStatus').style.color = '#27ae60';
                         
                         setTimeout(() => {
-                            document.getElementById('soundStatus').textContent = '🔊 Ses: Bekliyor...';
+                            document.getElementById('soundStatus').textContent = t.soundWaiting;
                             document.getElementById('soundStatus').style.color = '#888';
                         }, 3000);
                     } catch (soundError) {
@@ -924,10 +1467,11 @@
         
         // Chat kutusunu güncelle
         function updateChatBox() {
+            const t = TRANSLATIONS[currentLang];
             const chatDiv = document.getElementById('chatMessages');
             
             if (chatMessages.length === 0) {
-                chatDiv.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Henüz mesaj yok...</div>';
+                chatDiv.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">' + t.noMessages + '</div>';
                 return;
             }
             
@@ -944,6 +1488,7 @@
         }
 
         function stopListening() {
+            const t = TRANSLATIONS[currentLang];
             isListening = false;
             
             // Polling'i durdur
@@ -952,10 +1497,10 @@
                 pollInterval = null;
             }
             
-            document.getElementById('status').textContent = '⏸️ Durduruldu';
+            document.getElementById('status').textContent = t.stopped;
             document.getElementById('status').className = 'status waiting';
-            document.getElementById('toggleListenBtn').textContent = '▶️ Dinlemeye Devam Et';
-            document.getElementById('lastMessage').innerHTML = '<span>⏸️ Dinleme durduruldu. Devam etmek için butona tıklayın.</span>';
+            document.getElementById('toggleListenBtn').textContent = t.resumeListening;
+            document.getElementById('lastMessage').innerHTML = '<span>' + t.listeningStopped + '</span>';
             document.getElementById('chatBox').style.display = 'none';
             
             // Chat mesajlarını ve işlenen ID'leri temizle
@@ -974,6 +1519,8 @@
 
         // Çıkış yap - token'ları temizle
         function logout() {
+            const t = TRANSLATIONS[currentLang];
+            
             // Tüm localStorage token'larını sil
             localStorage.removeItem('kick_access_token');
             localStorage.removeItem('kick_refresh_token');
@@ -993,13 +1540,13 @@
             // Ekranı başlangıç durumuna getir
             document.getElementById('kickLoginBtn').classList.remove('hidden');
             document.getElementById('chatControls').classList.add('hidden');
-            document.getElementById('infoBox').innerHTML = '<strong>Kick Chat Ses Bildirimi</strong><br>1. "Kick ile Giriş Yap" butonuna tıkla<br>2. Tüm izinleri onayla<br>3. Kendi kanal chatiniz otomatik yüklenecek<br>4. "Dinlemeye Başla" butonuna tıkla<br>5. Her yeni mesajda ses çıkar';
-            document.getElementById('status').textContent = 'Kick ile bağlan';
+            document.getElementById('infoBox').innerHTML = `<strong>${t.infoTitle}</strong><br>${t.infoStep1}<br>${t.infoStep2}<br>${t.infoStep3}<br>${t.infoStep4}<br>${t.infoStep5}`;
+            document.getElementById('status').textContent = t.statusConnect;
             document.getElementById('status').className = 'status waiting';
             document.getElementById('tokenInfo').textContent = '';
-            document.getElementById('lastMessage').innerHTML = '<span>Çıkış yapıldı. Token temizlendi.</span>';
+            document.getElementById('lastMessage').innerHTML = '<span>' + t.loggedOut + '</span>';
             
-            console.log('Çıkış yapıldı. Tüm tokenlar temizlendi.');
+            console.log(t.loggedOut);
         }
 
         // Sayfa kapanınca temizlik (webhook için gerek yok)
@@ -1010,15 +1557,20 @@
 
         // Sayfa yüklendiğinde kontrol et
         window.onload = async function() {
+            // Dil ayarını uygula
+            setLanguage(currentLang);
+            
             if (accessToken && tokenExpires && Date.now() < parseInt(tokenExpires)) {
                 // Token var ve geçerli
                 document.getElementById('kickLoginBtn').classList.add('hidden');
                 document.getElementById('chatControls').classList.remove('hidden');
-                document.getElementById('infoBox').innerHTML = '<strong>✅ Bağlandınız!</strong><br>Kendi kanal chatinizi dinlemeye başlamak için butona tıklayın.';
-                document.getElementById('status').textContent = '✅ Yetkilendirildi';
+                
+                const t = TRANSLATIONS[currentLang];
+                document.getElementById('infoBox').innerHTML = `<strong>${t.connected}</strong><br>${t.channelListening}`;
+                document.getElementById('status').textContent = t.authorized;
                 document.getElementById('status').className = 'status connected';
                 document.getElementById('tokenInfo').textContent = 'Token geçerli - ' + new Date(parseInt(tokenExpires)).toLocaleString();
-                document.getElementById('toggleListenBtn').textContent = '🎧 Dinlemeye Başla';
+                document.getElementById('toggleListenBtn').textContent = t.startListening;
                 
                 // Kendi kanalını otomatik getir (ama dinlemeyi otomatik başlatma)
                 await loadMyChannel();
@@ -1034,18 +1586,20 @@
                 // Bildirim ayarını geri yükle
                 if (notificationsEnabled) {
                     document.getElementById('notificationToggle').checked = true;
-                    document.getElementById('notificationStatus').textContent = '✅ Aktif';
+                    document.getElementById('notificationStatus').textContent = t.on;
                     document.getElementById('notificationStatus').style.color = '#27ae60';
                     // İzni kontrol et, yoksa tekrar iste
                     if (Notification.permission !== 'granted') {
                         requestNotificationPermission().then(permission => {
                             if (permission !== 'granted') {
                                 document.getElementById('notificationToggle').checked = false;
-                                document.getElementById('notificationStatus').textContent = '❌ İzin yok';
+                                document.getElementById('notificationStatus').textContent = t.denied;
                                 document.getElementById('notificationStatus').style.color = '#e74c3c';
                             }
                         });
                     }
+                } else {
+                    document.getElementById('notificationStatus').textContent = t.off;
                 }
             } else {
                 // Token yok veya süresi dolmuş
