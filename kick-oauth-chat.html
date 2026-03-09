@@ -383,6 +383,24 @@
         [data-i18n] {
             transition: opacity 0.3s;
         }
+
+        .smart-notification {
+            transition: all 0.3s;
+        }
+
+        .smart-notification:hover {
+            background: rgba(233, 69, 96, 0.15) !important;
+        }
+
+        .smart-notification select:focus {
+            border-color: #e94560;
+            outline: none;
+        }
+
+        .smart-notification select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -491,6 +509,25 @@
                 <div id="notificationStatus" style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 28px;" data-i18n="off">Kapalı</div>
             </div>
 
+            <!-- Smart Notification Delay -->
+            <div class="smart-notification" style="margin-bottom: 15px; padding: 10px; background: rgba(233, 69, 96, 0.1); border-radius: 8px; border: 1px solid rgba(233, 69, 96, 0.3);">
+                <label style="display: block; font-size: 13px; color: #e94560; margin-bottom: 8px; font-weight: 600;" data-i18n="smartNotifyLabel">
+                    ⏱️ Akıllı Bildirim: Eğer mesaj gelmeyen süre geçtiyse ilk mesajda bildirim göster
+                </label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 12px; color: #a0a0a0;" data-i18n="delayLabel">Gecikme:</span>
+                    <select id="smartDelay" onchange="updateSmartDelay()" style="flex: 1; padding: 8px; border: 2px solid #0f3460; border-radius: 6px; background: #1a1a2e; color: #fff; font-size: 13px; cursor: pointer;">
+                        <option value="1">1 dakika</option>
+                        <option value="2">2 dakika</option>
+                        <option value="3">3 dakika</option>
+                        <option value="5" selected>5 dakika</option>
+                        <option value="10">10 dakika</option>
+                        <option value="15">15 dakika</option>
+                    </select>
+                </div>
+                <div id="smartStatus" style="font-size: 11px; color: #888; margin-top: 5px; margin-left: 0px;" data-i18n="smartStatus">5 dakika seçili</div>
+            </div>
+
             <button class="btn-logout" onclick="logout()" data-i18n="logoutBtn">🚪 Çıkış Yap (Token'ı Temizle)</button>
         </div>
 
@@ -542,6 +579,8 @@
         let selectedSound = parseInt(localStorage.getItem('kick_selected_sound') || '0');
         let notificationsEnabled = localStorage.getItem('kick_notifications') === 'true';
         let currentLang = localStorage.getItem('kick_lang') || 'tr';
+        let smartDelayMinutes = parseInt(localStorage.getItem('kick_smart_delay') || '5');
+        let lastMessageTime = 0; // Son mesajın zamanı (timestamp)
         const COOLDOWN_MS = 2000;
 
         // Bilinen botlar
@@ -590,7 +629,10 @@
                 contact: 'Contact:',
                 channelListening: '✅ Your channel chat is being listened! Sound will play for new messages.',
                 listeningStopped: '⏸️ Listening stopped. Click button to resume.',
-                loggedOut: 'Logged out. Token cleared.'
+                loggedOut: 'Logged out. Token cleared.',
+                smartNotifyLabel: '⏱️ Smart Notification: Show desktop notification for first message after inactivity',
+                delayLabel: 'Delay:',
+                smartStatus: 'minutes selected'
             },
             es: {
                 appTitle: '🔔 Notificaciones Chat Kick',
@@ -719,7 +761,10 @@
                 contact: 'İletişim:',
                 channelListening: '✅ Kanal chatiniz dinleniyor! Yeni mesajlarda ses çıkacak.',
                 listeningStopped: '⏸️ Dinleme durduruldu. Devam etmek için butona tıklayın.',
-                loggedOut: 'Çıkış yapıldı. Token temizlendi.'
+                loggedOut: 'Çıkış yapıldı. Token temizlendi.',
+                smartNotifyLabel: '⏱️ Akıllı Bildirim: Eğer mesaj gelmeyen süre geçtiyse ilk mesajda bildirim göster',
+                delayLabel: 'Gecikme:',
+                smartStatus: 'dakika seçili'
             },
             ar: {
                 appTitle: '🔔 إشعارات دردشة Kick',
@@ -1192,6 +1237,33 @@
             SOUND_FUNCTIONS[index]();
         }
 
+        // Akıllı bildirim gecikmesi güncelle
+        function updateSmartDelay() {
+            const select = document.getElementById('smartDelay');
+            smartDelayMinutes = parseInt(select.value);
+            localStorage.setItem('kick_smart_delay', smartDelayMinutes);
+            
+            const t = TRANSLATIONS[currentLang];
+            document.getElementById('smartStatus').textContent = smartDelayMinutes + ' ' + t.smartStatus;
+        }
+
+        // Akıllı bildirim kontrolü - mesaj geldiğinde çağrılır
+        function shouldShowSmartNotification() {
+            if (!notificationsEnabled) return true; // Normal davranış
+            
+            const now = Date.now();
+            const delayMs = smartDelayMinutes * 60 * 1000; // Dakikayı ms çevir
+            
+            // İlk mesaj veya son mesajdan beri yeterli süre geçtiyse bildirim göster
+            if (lastMessageTime === 0 || (now - lastMessageTime) >= delayMs) {
+                lastMessageTime = now;
+                return true; // Bildirim göster
+            }
+            
+            lastMessageTime = now;
+            return false; // Bildirim gösterme (sadece ses çal)
+        }
+
         // Bildirim toggle
         async function toggleNotifications() {
             const checkbox = document.getElementById('notificationToggle');
@@ -1439,8 +1511,13 @@
                         console.error('❌ Ses çalma hatası:', soundError);
                     }
                     
-                    // Windows bildirimi göster
-                    showNotification(trigger.username, trigger.message);
+                    // Akıllı bildirim kontrolü
+                    const shouldNotify = shouldShowSmartNotification();
+                    
+                    // Windows bildirimi göster (sadece akıllı bildirim koşulları uygunsa)
+                    if (shouldNotify) {
+                        showNotification(trigger.username, trigger.message);
+                    }
                     
                     // Mesajı listeye ekle
                     chatMessages.unshift({
@@ -1601,6 +1678,10 @@
                 } else {
                     document.getElementById('notificationStatus').textContent = t.off;
                 }
+                
+                // Akıllı bildirim gecikmesini geri yükle
+                document.getElementById('smartDelay').value = smartDelayMinutes;
+                document.getElementById('smartStatus').textContent = smartDelayMinutes + ' ' + t.smartStatus;
             } else {
                 // Token yok veya süresi dolmuş
                 localStorage.removeItem('kick_access_token');
