@@ -1643,7 +1643,7 @@
                 document.getElementById('chatControls').classList.remove('hidden');
                 
                 const t = TRANSLATIONS[currentLang];
-                document.getElementById('infoBox').innerHTML = `<strong>${t.connected}</strong><br>${t.channelListening}`;
+                document.getElementById('infoBox').innerHTML = `<strong style="color: #27ae60;">✅ ${t.connected}</strong><br><span style="color: #27ae60;">✅</span> ${t.channelListening}`;
                 document.getElementById('status').textContent = t.authorized;
                 document.getElementById('status').className = 'status connected';
                 document.getElementById('tokenInfo').textContent = 'Token geçerli - ' + new Date(parseInt(tokenExpires)).toLocaleString();

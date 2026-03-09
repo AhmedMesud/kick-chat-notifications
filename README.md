@@ -47,6 +47,13 @@ Click any sound button to **preview** it instantly!
 - Customizable on/off toggle
 - 5-second auto-dismiss
 
+### ⏱️ Smart Notification Delay
+- Configure delay: 1, 2, 3, 5, 10, or 15 minutes
+- If no messages received within selected time → desktop notification shows for first message
+- Prevents notification spam during active chat
+- Perfect for "dead chat" scenarios
+- Example: Set to 5 minutes → first message after 5+ minutes of silence triggers desktop notification
+
 ### 🌍 Multi-Language Support (9 Languages)
 | Language | Flag | Code |
 |----------|------|------|
@@ -211,7 +218,12 @@ kick-oauth-final/
 
 ## 📝 Changelog
 
-### v1.0.0 (Current)
+### v1.1.0 (Latest)
+- ✅ Smart Notification Delay feature (1-15 minutes configurable)
+- ✅ Author signature and contact info in footer
+- ✅ UI improvements with status indicators
+
+### v1.0.0
 - ✅ Initial release
 - ✅ 6 customizable notification sounds
 - ✅ Windows native notifications
