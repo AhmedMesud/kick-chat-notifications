@@ -141,10 +141,11 @@ chmod 666 sound_trigger.txt webhook_log.txt
 ## 🛠️ Technical Details
 
 ### Architecture
-- **Frontend**: Vanilla JavaScript, Web Audio API
+- **Frontend**: Vanilla JavaScript, Web Audio API, Modular CSS
 - **Backend**: PHP (cURL for API requests)
 - **Authentication**: OAuth 2.0 PKCE
 - **Real-time**: Webhook-based (Kick Events API) + File polling
+- **Localization**: JSON-based translations, dynamically loaded
 
 ### API Endpoints Used
 - `GET /public/v1/users` - Get user info
@@ -158,18 +159,32 @@ chmod 666 sound_trigger.txt webhook_log.txt
 
 ```
 kick-oauth-final/
-├── kick-oauth-chat.html    # Main application UI
-├── kick-callback.php       # OAuth callback handler
-├── token-exchange.php      # OAuth token exchange
-├── get-user-channel.php    # Fetch user's channel info
-├── events-subscribe.php    # Subscribe to Kick events
-├── webhook.php             # Webhook endpoint for chat messages
-├── index.php               # Redirect to main page
-├── .htaccess               # Security configuration
-├── config.php              # ⚠️ NOT IN GIT - Your secrets
-├── sound_trigger.txt       # ⚠️ Temporary message file
-├── webhook_log.txt         # ⚠️ Webhook debug log
-└── README.md               # This file
+├── kick-oauth-chat.html      # Main application UI
+├── style.css                 # CSS styles (modular)
+├── kick-callback.php         # OAuth callback handler (multi-language)
+├── token-exchange.php        # OAuth token exchange
+├── get-user-channel.php      # Fetch user's channel info
+├── events-subscribe.php      # Subscribe to Kick events
+├── webhook.php               # Webhook endpoint for chat messages
+├── index.php                 # Redirect to main page
+├── .htaccess                 # Security configuration
+├── config.php                # ⚠️ NOT IN GIT - Your secrets
+├── sound_trigger.txt         # ⚠️ Temporary message file
+├── webhook_log.txt           # ⚠️ Webhook debug log
+├── README.md                 # This file
+├── translations/             # 🌍 JSON translation files
+│   ├── en.json              # English
+│   ├── tr.json              # Türkçe
+│   ├── es.json              # Español
+│   ├── de.json              # Deutsch
+│   ├── ar.json              # العربية
+│   ├── pt.json              # Português
+│   ├── zh.json              # 中文
+│   ├── hi.json              # हिंदी
+│   └── ru.json              # Русский
+└── js/                       # 📜 JavaScript modules
+    ├── translations.js       # Translation system & language handling
+    └── app.js                # Main application logic (OAuth, sounds, notifications)
 ```
 
 ---
@@ -218,7 +233,13 @@ kick-oauth-final/
 
 ## 📝 Changelog
 
-### v1.1.0 (Latest)
+### v1.2.0 (Latest)
+- ✅ **Modular Architecture** - CSS and JS separated into dedicated files
+- ✅ **Translation System** - JSON-based translations in `translations/` folder
+- ✅ **Callback Page** - Multi-language support for OAuth callback messages
+- ✅ **Dynamic UI Updates** - Language changes apply without page refresh
+
+### v1.1.0
 - ✅ Smart Notification Delay feature (1-15 minutes configurable)
 - ✅ Author signature and contact info in footer
 - ✅ UI improvements with status indicators
