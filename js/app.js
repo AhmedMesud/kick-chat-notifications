@@ -555,10 +555,11 @@ function startWebhookPolling() {
                 showNotification(trigger.username, trigger.message);
             }
 
-            // Mesajı listeye ekle
+            // Mesajı listeye ekle (emojilerle birlikte)
             chatMessages.unshift({
                 username: trigger.username,
                 message: trigger.message,
+                emotes: trigger.emotes, // Emoji metadata'sını da kaydet
                 time: new Date().toLocaleTimeString()
             });
 
@@ -570,15 +571,63 @@ function startWebhookPolling() {
 
             const lastMessageEl = document.getElementById('lastMessage');
             if (lastMessageEl) {
+                const renderedLastMessage = renderEmotes(escapeHtml(trigger.message), trigger.emotes);
                 lastMessageEl.innerHTML =
                     '<span class="time">' + new Date().toLocaleTimeString() + '</span><br>' +
-                    '<strong>' + trigger.username + ':</strong> ' + trigger.message;
+                    '<strong>' + escapeHtml(trigger.username) + ':</strong> ' + renderedLastMessage;
             }
 
         } catch (e) {
             console.log('❌ Polling hatası:', e.message);
         }
     }, 1500);
+}
+
+// Emoji kodlarını görsel emojilere dönüştür
+function renderEmotes(message, emotes) {
+    if (!emotes || emotes.length === 0) {
+        // Emotes array'i yoksa, eski [emote:ID:NAME] pattern'ini dene
+        return message.replace(/\[emote:(\d+):([^\]]+)\]/g, function(match, emoteId, emoteName) {
+            return `<img src="https://files.kick.com/emotes/${emoteId}/fullsize" 
+                         alt="${emoteName}" 
+                         title="${emoteName}"
+                         style="width: 28px; height: 28px; vertical-align: middle; display: inline-block;">`;
+        });
+    }
+    
+    // Emotes array'i varsa, position bilgisine göre değiştir
+    let result = message;
+    // Pozisyonlara göre ters sırala (sondan başa değiştirme için)
+    const sortedEmotes = [...emotes].sort((a, b) => {
+        const posA = a.positions && a.positions[0] ? a.positions[0][0] : 0;
+        const posB = b.positions && b.positions[0] ? b.positions[0][0] : 0;
+        return posB - posA;
+    });
+    
+    sortedEmotes.forEach(emote => {
+        if (emote.positions && emote.positions.length > 0) {
+            emote.positions.forEach(pos => {
+                const start = pos[0];
+                const end = pos[1];
+                const before = result.substring(0, start);
+                const after = result.substring(end + 1);
+                const emoteHtml = `<img src="https://files.kick.com/emotes/${emote.id}/fullsize" 
+                                       alt="${emote.name}" 
+                                       title="${emote.name}"
+                                       style="width: 28px; height: 28px; vertical-align: middle; display: inline-block;">`;
+                result = before + emoteHtml + after;
+            });
+        }
+    });
+    
+    return result;
+}
+
+// HTML escaping için yardımcı fonksiyon
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Chat kutusunu güncelle
@@ -593,13 +642,14 @@ function updateChatBox() {
         return;
     }
 
-    chatDiv.innerHTML = chatMessages.map(msg =>
-        '<div style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">' +
-        '<span style="color: #666; font-size: 11px;">' + msg.time + '</span><br>' +
-        '<strong style="color: #e94560;">' + msg.username + ':</strong> ' +
-        '<span style="color: #fff;">' + msg.message + '</span>' +
-        '</div>'
-    ).join('');
+    chatDiv.innerHTML = chatMessages.map(msg => {
+        const renderedMessage = renderEmotes(escapeHtml(msg.message), msg.emotes);
+        return '<div style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">' +
+            '<span style="color: #666; font-size: 11px;">' + msg.time + '</span><br>' +
+            '<strong style="color: #e94560;">' + escapeHtml(msg.username) + ':</strong> ' +
+            '<span style="color: #fff;">' + renderedMessage + '</span>' +
+            '</div>';
+    }).join('');
 
     chatDiv.scrollTop = 0;
 }
