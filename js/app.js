@@ -486,7 +486,7 @@ function startWebhookPolling() {
         return;
     }
     
-    console.log('📁 Kanal dosyası:', 'sound_trigger_' + currentChannelId + '.txt');
+    console.log('📁 Kanal:', currentChannelId, '- Dosya pattern: sound_trigger_' + currentChannelId + '_*.txt');
 
     const chatBox = document.getElementById('chatBox');
     if (chatBox) chatBox.style.display = 'block';

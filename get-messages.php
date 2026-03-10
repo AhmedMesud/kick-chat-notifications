@@ -41,11 +41,24 @@ if (empty($channelId)) {
     exit;
 }
 
-// Dosya yolunu oluştur
-$file = __DIR__ . '/sound_trigger_' . $channelId . '.txt';
+// Dosya yolunu bul (yeni format: sound_trigger_{id}_{slug}.txt)
+$file = null;
+$pattern = __DIR__ . '/sound_trigger_' . $channelId . '_*.txt';
+$files = glob($pattern);
+
+if (!empty($files)) {
+    // En son değiştirilmiş dosyayı al (birden fazla varsa)
+    usort($files, function($a, $b) {
+        return filemtime($b) - filemtime($a);
+    });
+    $file = $files[0];
+} else {
+    // Eski formatı dene (geriye uyumluluk)
+    $file = __DIR__ . '/sound_trigger_' . $channelId . '.txt';
+}
 
 // Dosya varsa ve içeriği varsa döndür
-if (file_exists($file)) {
+if ($file && file_exists($file)) {
     $content = @file_get_contents($file);
     if ($content && trim($content)) {
         // Geçerli JSON mı kontrol et
