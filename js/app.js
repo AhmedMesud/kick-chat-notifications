@@ -571,7 +571,8 @@ function startWebhookPolling() {
 
             const lastMessageEl = document.getElementById('lastMessage');
             if (lastMessageEl) {
-                const renderedLastMessage = renderEmotes(escapeHtml(trigger.message), trigger.emotes);
+                // renderEmotes içinde HTML escape yapılıyor
+                const renderedLastMessage = renderEmotes(trigger.message, trigger.emotes);
                 lastMessageEl.innerHTML =
                     '<span class="time">' + new Date().toLocaleTimeString() + '</span><br>' +
                     '<strong>' + escapeHtml(trigger.username) + ':</strong> ' + renderedLastMessage;
@@ -583,47 +584,78 @@ function startWebhookPolling() {
     }, 1500);
 }
 
-// Emoji kodlarını görsel emojilere dönüştür
+// Emoji kodlarını görsel emojilere dönüştür (HTML güvenli)
 function renderEmotes(message, emotes) {
+    // Emotes array'i yoksa veya boşsa, eski formatı regex ile dene
     if (!emotes || emotes.length === 0) {
-        // Emotes array'i yoksa, eski [emote:ID:NAME] pattern'ini dene
         return message.replace(/\[emote:(\d+):([^\]]+)\]/g, function(match, emoteId, emoteName) {
             return `<img src="https://files.kick.com/emotes/${emoteId}/fullsize" 
                          alt="${emoteName}" 
                          title="${emoteName}"
-                         style="width: 28px; height: 28px; vertical-align: middle; display: inline-block;">`;
+                         style="width: 28px; height: 28px; vertical-align: middle; display: inline-block;"
+                         onerror="this.style.display='none'">`;
         });
     }
     
-    // Emotes array'i varsa, position bilgisine göre değiştir
-    let result = message;
-    // Pozisyonlara göre ters sırala (sondan başa değiştirme için)
-    const sortedEmotes = [...emotes].sort((a, b) => {
-        const posA = a.positions && a.positions[0] ? a.positions[0][0] : 0;
-        const posB = b.positions && b.positions[0] ? b.positions[0][0] : 0;
-        return posB - posA;
-    });
-    
-    sortedEmotes.forEach(emote => {
+    // Kick API formatı: {emote_id, positions: [{s, e}, ...]}
+    // Pozisyonlara göre sondan başa sırala (indeks kaymasını önlemek için)
+    const sortedEmotes = [];
+    emotes.forEach((emote, emoteIndex) => {
         if (emote.positions && emote.positions.length > 0) {
-            emote.positions.forEach(pos => {
-                const start = pos[0];
-                const end = pos[1];
-                const before = result.substring(0, start);
-                const after = result.substring(end + 1);
-                const emoteHtml = `<img src="https://files.kick.com/emotes/${emote.id}/fullsize" 
-                                       alt="${emote.name}" 
-                                       title="${emote.name}"
-                                       style="width: 28px; height: 28px; vertical-align: middle; display: inline-block;">`;
-                result = before + emoteHtml + after;
+            emote.positions.forEach((pos, posIndex) => {
+                sortedEmotes.push({
+                    emote_id: emote.emote_id,
+                    name: emote.name || 'emoji',
+                    start: pos.s,
+                    end: pos.e,
+                    originalIndex: emoteIndex,
+                    posIndex: posIndex
+                });
             });
         }
+    });
+    
+    // Sondan başa sırala (büyük indeksten küçüğe)
+    sortedEmotes.sort((a, b) => b.start - a.start);
+    
+    // Geçici placeholder'lar kullan
+    let placeholders = [];
+    let result = message;
+    
+    sortedEmotes.forEach((item, index) => {
+        const placeholder = `__EMOTE_${item.originalIndex}_${item.posIndex}__`;
+        
+        placeholders.push({
+            placeholder: placeholder,
+            emote_id: item.emote_id,
+            name: item.name
+        });
+        
+        // Pozisyonlara göre değiştir (düzeltme: substring kullanımı)
+        const before = result.substring(0, item.start);
+        const after = result.substring(item.end + 1);
+        result = before + placeholder + after;
+    });
+    
+    // Kalan metni HTML escape et (güvenlik)
+    const div = document.createElement('div');
+    div.textContent = result;
+    result = div.innerHTML;
+    
+    // Placeholder'ları img tag'lerine dönüştür
+    placeholders.forEach(p => {
+        const emoteHtml = `<img src="https://files.kick.com/emotes/${p.emote_id}/fullsize" 
+                               alt="${p.name}" 
+                               title="${p.name}"
+                               style="width: 28px; height: 28px; vertical-align: middle; display: inline-block;"
+                               onerror="this.style.display='none'">`;
+        result = result.split(p.placeholder).join(emoteHtml);
     });
     
     return result;
 }
 
-// HTML escaping için yardımcı fonksiyon
+// Basit HTML escape fonksiyonu
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -643,7 +675,8 @@ function updateChatBox() {
     }
 
     chatDiv.innerHTML = chatMessages.map(msg => {
-        const renderedMessage = renderEmotes(escapeHtml(msg.message), msg.emotes);
+        // renderEmotes içinde HTML escape yapılıyor
+        const renderedMessage = renderEmotes(msg.message, msg.emotes);
         return '<div style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">' +
             '<span style="color: #666; font-size: 11px;">' + msg.time + '</span><br>' +
             '<strong style="color: #e94560;">' + escapeHtml(msg.username) + ':</strong> ' +
