@@ -6,6 +6,17 @@ Real-time sound and Windows notifications for Kick streamers. Never miss a chat 
 
 ---
 
+## 🛠️ Tech Stack
+
+- **Backend**: PHP 8.x (REST API, file-based storage, heartbeat tracking)
+- **Frontend**: Vanilla JavaScript ES6+, Web Audio API
+- **External APIs**: Kick OAuth 2.0 PKCE, Kick Events API (Webhooks)
+- **Real-time**: Polling with 1.5s intervals, Heartbeat system (30s ping, 2min timeout)
+- **Storage**: File-based (JSON + TXT files per channel)
+- **Security**: OAuth 2.0 PKCE, .htaccess protection, input sanitization
+
+---
+
 ## 🎯 Purpose & Use Case
 
 This application is designed for **growing streamers** who want to engage with every viewer and never miss an important chat message.
