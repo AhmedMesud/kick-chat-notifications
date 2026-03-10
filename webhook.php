@@ -19,6 +19,7 @@ if ($eventType === 'chat.message.sent') {
     $content = $data['content'] ?? '';
     $messageId = $data['message_id'] ?? 'N/A';
     $broadcasterId = $data['broadcaster']['user_id'] ?? null;
+    $emotes = $data['emotes'] ?? []; // Emojileri al
     
     // Broadcaster ID yoksa varsayılan dosyaya yaz (geriye uyumluluk)
     $fileSuffix = $broadcasterId ? '_' . $broadcasterId : '';
@@ -30,7 +31,8 @@ if ($eventType === 'chat.message.sent') {
         'message' => substr($content, 0, 100),
         'message_id' => $messageId,
         'event_time' => time(),
-        'broadcaster_id' => $broadcasterId
+        'broadcaster_id' => $broadcasterId,
+        'emotes' => $emotes // Emojileri kaydet
     ]);
     
     @file_put_contents($soundTriggerFile, $triggerData, LOCK_EX);

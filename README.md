@@ -47,6 +47,12 @@ Click any sound button to **preview** it instantly!
 - Customizable on/off toggle
 - 5-second auto-dismiss
 
+### 😀 Emoji Support
+- Emojis are automatically rendered as images from Kick's emote library
+- Works with both `[emote:ID:NAME]` format and metadata-based emotes
+- Clean, 28x28 pixel display inline with text
+- All official Kick emojis supported
+
 ### ⏱️ Smart Notification Delay
 - Configure delay: 1, 2, 3, 5, 10, or 15 minutes
 - If no messages received within selected time → desktop notification shows for first message
@@ -259,7 +265,12 @@ kick-oauth-final/
 
 ## 📝 Changelog
 
-### v1.3.0 (Latest)
+### v1.3.1 (Latest)
+- ✅ **Emoji Support** - Kick emojis now render as images instead of plain text codes
+- ✅ `webhook.php` updated to capture emote metadata
+- ✅ `app.js` with `renderEmotes()` function for visual emoji display
+
+### v1.3.0
 - ✅ **User Isolation** - Each user only receives notifications for their own channel via `sound_trigger_{channelId}.txt` files
 - ✅ **Online User Counter** - Real-time badge showing active listeners (👥 X) with 30-second heartbeat
 - ✅ **get-messages.php** - New endpoint for clean channel-based message retrieval (no more 404 errors in console)
