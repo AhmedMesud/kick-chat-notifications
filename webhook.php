@@ -19,10 +19,11 @@ if ($eventType === 'chat.message.sent') {
     $content = $data['content'] ?? '';
     $messageId = $data['message_id'] ?? 'N/A';
     $broadcasterId = $data['broadcaster']['user_id'] ?? null;
-    $emotes = $data['emotes'] ?? []; // Emojileri al
+    $broadcasterSlug = $data['broadcaster']['channel_slug'] ?? 'unknown';
+    $emotes = $data['emotes'] ?? [];
     
-    // Broadcaster ID yoksa varsayılan dosyaya yaz (geriye uyumluluk)
-    $fileSuffix = $broadcasterId ? '_' . $broadcasterId : '';
+    // Dosya adını oluştur: sound_trigger_{ID}_{slug}.txt
+    $fileSuffix = $broadcasterId ? '_' . $broadcasterId . '_' . $broadcasterSlug : '';
     $soundTriggerFile = __DIR__ . '/sound_trigger' . $fileSuffix . '.txt';
     
     $triggerData = json_encode([
@@ -32,7 +33,8 @@ if ($eventType === 'chat.message.sent') {
         'message_id' => $messageId,
         'event_time' => time(),
         'broadcaster_id' => $broadcasterId,
-        'emotes' => $emotes // Emojileri kaydet
+        'broadcaster_slug' => $broadcasterSlug,
+        'emotes' => $emotes
     ]);
     
     @file_put_contents($soundTriggerFile, $triggerData, LOCK_EX);

@@ -209,9 +209,9 @@ kick-oauth-final/
 ├── index.php                 # Redirect to main page
 ├── .htaccess                 # Security configuration
 ├── config.php                # ⚠️ NOT IN GIT - Your secrets
-├── sound_trigger.txt         # ⚠️ DEPRECATED - Legacy message file
-├── sound_trigger_{id}.txt   # ⚠️ Per-channel message files (auto-created)
-├── active_listeners.json     # ⚠️ Online users tracking (auto-created)
+├── sound_trigger.txt                  # ⚠️ DEPRECATED - Legacy message file
+├── sound_trigger_{id}_{slug}.txt      # ⚠️ Per-channel message files (auto-created)
+├── active_listeners.json              # ⚠️ Online users tracking (auto-created)
 ├── webhook_log.txt           # ⚠️ Webhook debug log
 ├── README.md                 # This file
 ├── translations/             # 🌍 JSON translation files
