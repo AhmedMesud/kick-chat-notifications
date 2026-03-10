@@ -18,16 +18,19 @@ if ($eventType === 'chat.message.sent') {
     $sender = $data['sender']['username'] ?? 'Bilinmeyen';
     $content = $data['content'] ?? '';
     $messageId = $data['message_id'] ?? 'N/A';
+    $broadcasterId = $data['broadcaster']['user_id'] ?? null;
     
-    // Ses çalma komutunu dosyaya yaz
-    $soundTriggerFile = __DIR__ . '/sound_trigger.txt';
+    // Broadcaster ID yoksa varsayılan dosyaya yaz (geriye uyumluluk)
+    $fileSuffix = $broadcasterId ? '_' . $broadcasterId : '';
+    $soundTriggerFile = __DIR__ . '/sound_trigger' . $fileSuffix . '.txt';
     
     $triggerData = json_encode([
         'timestamp' => $timestamp,
         'username' => $sender,
         'message' => substr($content, 0, 100),
         'message_id' => $messageId,
-        'event_time' => time()
+        'event_time' => time(),
+        'broadcaster_id' => $broadcasterId
     ]);
     
     @file_put_contents($soundTriggerFile, $triggerData, LOCK_EX);

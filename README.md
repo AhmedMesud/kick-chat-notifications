@@ -54,6 +54,11 @@ Click any sound button to **preview** it instantly!
 - Perfect for "dead chat" scenarios
 - Example: Set to 5 minutes → first message after 5+ minutes of silence triggers desktop notification
 
+### 🏠 Multi-User Support
+- **Channel-based isolation** - Each user only receives notifications for their own channel
+- No cross-user message leakage - perfect for shared hosting
+- Files are automatically created per channel: `sound_trigger_{channelId}.txt`
+
 ### 🌍 Multi-Language Support (9 Languages)
 | Language | Flag | Code |
 |----------|------|------|
@@ -67,11 +72,18 @@ Click any sound button to **preview** it instantly!
 | हिंदी | 🇮🇳 | HI |
 | Русский | 🇷🇺 | RU |
 
+### 👥 Online User Counter
+- See how many streamers are actively listening in real-time
+- Displayed as a badge in the top-right corner (👥 3)
+- Updates every 10 seconds
+- 2-minute timeout for inactive users
+
 ### 🔒 Security
 - OAuth 2.0 PKCE flow for secure authentication
 - `CLIENT_SECRET` excluded from GitHub (via `.gitignore`)
 - `.htaccess` protection for sensitive files
 - Token-based session management
+- **User isolation** - Each user only sees messages from their own channel
 
 ---
 
@@ -121,9 +133,11 @@ Upload all files to your web hosting (except `config.php` - create it on server)
 ### 5. Create Empty Files
 Create these empty files with write permissions (666):
 ```bash
-touch sound_trigger.txt webhook_log.txt
-chmod 666 sound_trigger.txt webhook_log.txt
+touch webhook_log.txt
+chmod 666 webhook_log.txt
 ```
+
+**Note:** `sound_trigger_{channelId}.txt` and `active_listeners.json` files are automatically created per channel when messages arrive or users go online.
 
 ---
 
@@ -148,10 +162,17 @@ chmod 666 sound_trigger.txt webhook_log.txt
 - **Localization**: JSON-based translations, dynamically loaded
 
 ### API Endpoints Used
+
+#### Kick API (External)
 - `GET /public/v1/users` - Get user info
 - `GET /public/v1/channels` - Get channel info
 - `POST /public/v1/events/subscriptions` - Subscribe to chat events
 - Webhook endpoint for `chat.message.sent` events
+
+#### Local API (Internal)
+- `GET get-messages.php?channel_id={id}` - Get latest message for specific channel
+- `POST heartbeat.php` - Register/update active user status
+- `GET heartbeat.php` - Get count of online users
 
 ---
 
@@ -166,10 +187,14 @@ kick-oauth-final/
 ├── get-user-channel.php      # Fetch user's channel info
 ├── events-subscribe.php      # Subscribe to Kick events
 ├── webhook.php               # Webhook endpoint for chat messages
+├── get-messages.php          # Channel-based message retrieval endpoint
+├── heartbeat.php             # Online user tracking endpoint
 ├── index.php                 # Redirect to main page
 ├── .htaccess                 # Security configuration
 ├── config.php                # ⚠️ NOT IN GIT - Your secrets
-├── sound_trigger.txt         # ⚠️ Temporary message file
+├── sound_trigger.txt         # ⚠️ DEPRECATED - Legacy message file
+├── sound_trigger_{id}.txt   # ⚠️ Per-channel message files (auto-created)
+├── active_listeners.json     # ⚠️ Online users tracking (auto-created)
 ├── webhook_log.txt           # ⚠️ Webhook debug log
 ├── README.md                 # This file
 ├── translations/             # 🌍 JSON translation files
@@ -184,7 +209,7 @@ kick-oauth-final/
 │   └── ru.json              # Русский
 └── js/                       # 📜 JavaScript modules
     ├── translations.js       # Translation system & language handling
-    └── app.js                # Main application logic (OAuth, sounds, notifications)
+    └── app.js                # Main application logic (OAuth, sounds, notifications, heartbeat)
 ```
 
 ---
@@ -227,13 +252,21 @@ kick-oauth-final/
 ### Messages not appearing
 - Verify webhook is enabled in Kick app settings
 - Check `webhook_log.txt` for incoming events
-- Ensure `sound_trigger.txt` has write permissions
+- Ensure `sound_trigger_{channelId}.txt` files have write permissions (666)
+- For multi-user setups, each channel gets its own file automatically
 
 ---
 
 ## 📝 Changelog
 
-### v1.2.0 (Latest)
+### v1.3.0 (Latest)
+- ✅ **User Isolation** - Each user only receives notifications for their own channel via `sound_trigger_{channelId}.txt` files
+- ✅ **Online User Counter** - Real-time badge showing active listeners (👥 X) with 30-second heartbeat
+- ✅ **get-messages.php** - New endpoint for clean channel-based message retrieval (no more 404 errors in console)
+- ✅ **heartbeat.php** - Server-side tracking for active users with 2-minute timeout
+- ✅ **Multi-user Ready** - Perfect for shared hosting - no message leakage between users
+
+### v1.2.0
 - ✅ **Modular Architecture** - CSS and JS separated into dedicated files
 - ✅ **Translation System** - JSON-based translations in `translations/` folder
 - ✅ **Callback Page** - Multi-language support for OAuth callback messages

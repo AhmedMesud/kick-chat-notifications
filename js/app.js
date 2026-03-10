@@ -27,6 +27,10 @@ const COOLDOWN_MS = 2000;
 // Chat mesajları
 let chatMessages = [];
 let processedMessageIds = new Set();
+let heartbeatInterval = null;
+let onlineCountInterval = null;
+const HEARTBEAT_INTERVAL_MS = 30000; // 30 saniye
+const ONLINE_COUNT_INTERVAL_MS = 10000; // 10 saniye
 
 // Bilinen botlar
 const BOTS = new Set(['streamelements', 'nightbot', 'moobot', 'botrix', 'kickbot', 'kick', 'streamlabs']);
@@ -458,6 +462,7 @@ async function startListening() {
         if (lastMessageEl) lastMessageEl.innerHTML = '<span>' + (t.channelListening || 'Kanal dinleniyor') + '</span>';
 
         isListening = true;
+        startHeartbeat(); // Heartbeat başlat
         startWebhookPolling();
 
     } catch (error) {
@@ -475,28 +480,41 @@ async function startListening() {
 // Webhook mesajlarını kontrol et
 function startWebhookPolling() {
     console.log('🟢 Polling başlatıldı');
+    
+    if (!currentChannelId) {
+        console.error('❌ Polling başlatılamadı: currentChannelId yok');
+        return;
+    }
+    
+    console.log('📁 Kanal dosyası:', 'sound_trigger_' + currentChannelId + '.txt');
 
     const chatBox = document.getElementById('chatBox');
     if (chatBox) chatBox.style.display = 'block';
 
+    // Kanala özel endpoint - PHP wrapper ile (404 yerine boş JSON döner)
+    const messagesEndpoint = 'get-messages.php?channel_id=' + currentChannelId;
+
     pollInterval = setInterval(async () => {
         try {
-            const response = await fetch('sound_trigger.txt?' + Date.now(), {
+            const response = await fetch(messagesEndpoint + '&t=' + Date.now(), {
                 method: 'GET',
                 cache: 'no-store'
             });
-
-            if (!response.ok) return;
-
-            const text = await response.text();
-            if (!text.trim()) return;
-
-            let trigger;
-            try {
-                trigger = JSON.parse(text);
-            } catch (e) {
+            
+            // HTTP hatası varsa sessizce devam et (console temiz kalsın)
+            if (!response.ok) {
                 return;
             }
+            
+            const apiResult = await response.json();
+            
+            // API başarısız veya data yoksa sessizce devam et
+            if (!apiResult.success || !apiResult.data) {
+                return;
+            }
+            
+            // Data'yı eski formata uygun hale getir (geriye uyumluluk)
+            const trigger = apiResult.data;
 
             if (!trigger.message_id) return;
             if (processedMessageIds.has(trigger.message_id)) return;
@@ -595,6 +613,9 @@ function stopListening() {
         clearInterval(pollInterval);
         pollInterval = null;
     }
+    
+    // Heartbeat'i durdur
+    stopHeartbeat();
 
     const statusEl = document.getElementById('status');
     const toggleBtn = document.getElementById('toggleListenBtn');
@@ -619,6 +640,81 @@ function toggleListening() {
         stopListening();
     } else {
         startListening();
+    }
+}
+
+// ========== HEARTBEAT FONKSİYONLARI ==========
+
+// Heartbeat gönder - sunucuya "ben hâlâ buradayım" sinyali
+async function sendHeartbeat() {
+    if (!currentChannelId) return;
+    
+    try {
+        const response = await fetch('heartbeat.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                channel_id: currentChannelId,
+                channel_name: currentChannelName
+            })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            updateOnlineBadge(data.online_count);
+        }
+    } catch (e) {
+        console.log('Heartbeat hatası:', e.message);
+    }
+}
+
+// Aktif kullanıcı sayısını al ve göster
+async function updateOnlineCount() {
+    try {
+        const response = await fetch('heartbeat.php', {
+            method: 'GET',
+            cache: 'no-store'
+        });
+        
+        const data = await response.json();
+        updateOnlineBadge(data.online_count);
+    } catch (e) {
+        console.log('Online sayı alma hatası:', e.message);
+    }
+}
+
+// Online badge'i güncelle
+function updateOnlineBadge(count) {
+    const badge = document.getElementById('onlineBadge');
+    if (badge) {
+        badge.textContent = '👥 ' + count;
+        badge.style.display = count > 0 ? 'flex' : 'none';
+    }
+}
+
+// Heartbeat'i başlat
+function startHeartbeat() {
+    // Hemen bir heartbeat gönder
+    sendHeartbeat();
+    
+    // Her 30 saniyede bir tekrarla
+    heartbeatInterval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
+    
+    // Her 10 saniyede bir online sayısını güncelle
+    onlineCountInterval = setInterval(updateOnlineCount, ONLINE_COUNT_INTERVAL_MS);
+}
+
+// Heartbeat'i durdur
+function stopHeartbeat() {
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+    }
+    if (onlineCountInterval) {
+        clearInterval(onlineCountInterval);
+        onlineCountInterval = null;
     }
 }
 
@@ -681,6 +777,7 @@ function logout() {
     localStorage.removeItem('oauth_state');
 
     stopListening();
+    stopHeartbeat();
 
     accessToken = null;
     refreshToken = null;
@@ -711,6 +808,9 @@ function logout() {
 // ========== SAYFA YÜKLEME ==========
 
 window.onload = async function() {
+    // Online sayısını güncelle
+    updateOnlineCount();
+    
     // Çevirilerin yüklenmesini bekle
     await new Promise(resolve => {
         const checkTranslations = () => {
